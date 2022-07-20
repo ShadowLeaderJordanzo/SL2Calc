@@ -10,7 +10,8 @@
     make stats influence their respective things
         have aptitude increase invested by 1 for everything
         make shift click open an input value box
-
+            add feature to let overflow stas so you can have -
     add race selection that changes bases
         add class/sub class
             add food
+        
