@@ -1,36 +1,25 @@
 from tkinter import *
+from statClasses import *
 import os
 currentVersion = "0.1"
 root = Tk()
+root.grid_columnconfigure(0,weight = 1)
 root.title('Sigrogana Legend 2 Calculator')
-root.geometry("400x600")
+root.geometry("700x700")
 pixel = PhotoImage(width=1, height=1)
 # god i really want to clean this up somehow
 
+
+# make this a class with these inside it
+currentStats = statHandler( stats = [stat(base=0),stat(base=0),stat(base=0),stat(base=0),stat(base=0),stat(base=0),stat(base=0),stat(base=0),stat(base=0),stat(base=0),stat(base=0),stat(base=0)],
+	parent=root, pixel=pixel)
+# 	root=root)
+# end
 def statAdd():
 	return 
 def statMinus():
 	return 
 # ref stat?
-def addStatLabels():
-	statList = ["Strength","Will","Skill","Celerity","Defense","Resistance","Vitality","Faith","Luck","Guile","Sanctity", "Aptitude"]
-	offset=3
-	pointsRemaining = Label(root, text="0 Points Remaining", padx=15)
-	pointsRemaining.grid(row=2,column=1)
-	for x in range(len(statList)):
-		theStat = Label(root, text=statList[x],padx=5)
-		statValue = Label(root, text="0")
-		theStat.grid(row=offset+x,column=0)
-		statValue.grid(row=offset+x, column=1)
-def addStatButtons():
-	offsetRow = 3
-	offsetColumn = 2
-	for x in range(12):
-		theButton = Button(root, text="+",command=statAdd,height=10,width=10, image=pixel, compound="c")
-		otherButton = Button(root, text="-",command=statMinus,height=10,width=10, image=pixel, compound="c")
-		theButton.grid(row=offsetRow+x,column=offsetColumn,padx=5)
-		otherButton.grid(row=offsetRow+x,column=offsetColumn+1)
-	return
 # ref stat? 
 
 def astroPopUp():
@@ -43,11 +32,12 @@ def astroPopUp():
 
 # god i really want to clean this up somehow
 
-version = Label(root, text="Version " + currentVersion, width=15,)
-version.grid(row=0,column=1, columnspan=3)
-addStatButtons()
-addStatLabels()
+version = Label(root, text="Version " + currentVersion)
+Label(root).grid(row=0,column=1, sticky=NSEW)
+version.grid(row=0,column=15,sticky=NSEW)
+# addStatButtons()
+# addStatLabels()
 astroPhoto = PhotoImage(file = "astro.png")
 myButton = Button(root, text="Click Me!", image = astroPhoto, command = astroPopUp)
-myButton.grid(row=0,column=0)
+myButton.grid(row=0,column=0,sticky='nws',)
 root.mainloop()
