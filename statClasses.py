@@ -7,7 +7,6 @@ class statHandler: # looks pretty ugly
 	def __init__(self, stats, parent, pixel):
 		if len(stats) > 0:
 			self.strength = stats[0].addWidgets(parent=parent,offsetRow=3,offsetColumn=2,pixel=pixel,name="Strength", handler=self)
-			print(self.strength)
 			self.will = stats[1].addWidgets(parent=parent,offsetRow=4,offsetColumn=2,pixel=pixel,name="Will", handler=self)
 			self.skill = stats[2].addWidgets(parent=parent,offsetRow=5,offsetColumn=2,pixel=pixel,name="Skill", handler=self)
 			self.celerity = stats[3].addWidgets(parent=parent,offsetRow=6,offsetColumn=2,pixel=pixel,name="Celerity", handler=self)
@@ -93,22 +92,25 @@ class stat:
 			if mod < 0.1: mod =0.1
 		currentStat += totalStat * mod
 		return round(currentStat,2)
+
+	def checkAdptitude(self,handler):
+		if self.name == "aptitude":
+			totalStat = self.getTotal()
+			totalSoftCap = self.getTotalSoftCap()
+			if totalSoftCap >= totalStat:
+				if self.invested%6==0:
+					handler.adjustAptMods(amount=totalStat/6)
+			else:
+				if self.getScaled()%6 < 1:
+					handler.adjustAptMods(amount=round(totalStat/6))
 	def add(self, choice, num, hardCap,handler):
 		currentValue = getattr(self,choice)
 		if num == 0: num = 1
 		if handler.reducePoints(num=num) == 1:
 			if hardCap == 1:
 				if currentValue+num > 80: return
+			self.checkAdptitude(handler=handler)
 			setattr(self, choice, currentValue + num)
-			if self.name == "aptitude":
-				totalStat = self.getTotal()
-				totalSoftCap = self.getTotalSoftCap()
-				if totalSoftCap >= totalStat:
-					if self.invested%6==0:
-						handler.adjustAptMods(amount=self.invested/6)
-				else:
-					if self.getScaled()%6==0:
-						handler.adjustAptMods(amount=self.invested/6)
 			self.updateDisplay()
 			handler.pointsRemaining.config(text=f"{statHandler.points} Points Remaining")
 	def sub(self, choice, num, handler):
@@ -116,8 +118,7 @@ class stat:
 		if currentValue-num < 0: return
 		setattr(self, choice, currentValue-num)
 		statHandler.points += num
-		if self.name == "aptitude":
-			handler.adjustAptMods(amount=self.invested/6)
+		self.checkAdptitude(self,handler)
 		self.updateDisplay()
 		handler.pointsRemaining.config(text=f"{statHandler.points} Points Remaining")
 	def update_modifiers(self):

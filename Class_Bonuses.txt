@@ -1,0 +1,205 @@
+                Soldier
+                    Strength = 2;
+                    Skill = 1;
+                    Vitality = 2;
+                    break;
+                Black Knight
+                    Strength = 2;
+                    Skill = 1;
+                    Defense = 2;
+                    Vitality = 2;
+                    Luck = 1;
+                    break;
+                Tactician
+                    Strength = 1;
+                    Will = 1;
+                    Skill = 2;
+                    Celerity = 2;
+                    Defense = 1;
+                    Resistance = 1;
+                    break;
+                Demon Hunter
+                    Strength = 2;
+                    Skill = 2;
+                    Celerity = 2;
+                    Defense = 2;
+                    break;
+                Mage
+                    Will = 2;
+                    Celerity = 1;
+                    Resistance = 2;
+                    break;
+                Evoker
+                    Will = 3;
+                    Skill = 2;
+                    Celerity = 2;
+                    Luck = 1;
+                    break;
+                Hexer
+                    Will = 1;
+                    Skill = 1;
+                    Defense = 3;
+                    Resistance = 3;
+                    break;
+                Rune Magician
+                    Will = 3;
+                    Skill = 2;
+                    Guile = 3;
+                    break;
+                Archer
+                    Skill = 2;
+                    Celerity = 2;
+                    Luck = 1;
+                    break;
+                Arbalest
+                    Strength = 2;
+                    Skill = 2;
+                    Defense = 2;
+                    Resistance = 1;
+                    Luck = 1;
+                    break;
+                Magic Gunner
+                    Will = 2;
+                    Skill = 3;
+                    Celerity = 2;
+                    Luck = 1;
+                    break;
+                Ranger
+                    Strength = 2;
+                    Skill = 2;
+                    Celerity = 2;
+                    Sanctity = 2;
+                    break;
+                Curate
+                    Will = 2;
+                    Celerity = 2;
+                    Resistance = 1;
+                    break;
+                Lantern Bearer
+                    Will = 2;
+                    Celerity = 2;
+                    Defense = 1;
+                    Resistance = 2;
+                    Luck = 1;
+                    break;
+                Priest
+                    Will = 2;
+                    Celerity = 1;
+                    Resistance = 2;
+                    Faith = 3;
+                    break;
+                Aquamancer
+                    Will = 1;
+                    Celerity = 2;
+                    Faith = 2;
+                    Vitality = 3;
+                    break;
+                Duelist
+                    Strength = 1;
+                    Skill = 2;
+                    Celerity = 2;
+                    break;
+                Ghost
+		    Strength = 0;
+                    break;
+                Kensei
+                    Strength = 2;
+                    Skill = 2;
+                    Celerity = 2;
+                    Luck = 2;
+                    break;
+                Firebird
+                    Strength = 2;
+                    Skill = 2;
+                    Celerity = 3;
+                    Luck = 1;
+                    break;
+                Martial Artist
+                    Strength = 2;
+                    Skill = 2;
+                    Celerity = 1;
+                    break;
+                Monk
+                    Strength = 1;
+                    Skill = 2;
+                    Celerity = 2;
+                    Defense = 2;
+                    Resistance = 1;
+                    break;
+                Verglas
+                    Strength = 2;
+                    Will = 2;
+                    Skill = 2;
+                    Celerity = 2;
+                    break;
+                Boxer
+                    Strength = 2;
+                    Skill = 2;
+                    Defense = 2;
+                    Vitality = 2;
+                    break;
+                Rogue
+                    Skill = 1;
+                    Celerity = 2;
+                    Luck = 2;
+                    break;
+                Engineer
+                    Strength = 2;
+                    Skill = 1;
+                    Celerity = 2;
+                    Defense = 1;
+                    Luck = 2;
+                    break;
+                Void Assassin
+                    Skill = 3;
+                    Celerity = 2;
+                    Resistance = 2;
+                    Luck = 1;
+                    break;
+                Spellthief
+                    Strength = 2;
+                    Will = 2;
+                    Skill = 2;
+                    Celerity = 2;
+                    break;
+                Summoner
+                    Will = 2;
+                    Celerity = 2;
+                    Resistance = 1;
+                    break;
+                Grand Summoner
+                    Will = 2;
+                    Skill = 2;
+                    Celerity = 2;
+                    Faith = 2;
+                    break;
+                Bonder
+                    Strength = 2;
+                    Will = 2;
+                    Skill = 2;
+                    Celerity = 1;
+                    Luck = 1;
+                    break;
+                Shapeshifter
+                    Strength = 2;
+                    Skill = 2;
+                    Celerity = 2;
+                    Luck = 2;
+                    break;
+                Bard
+                    Sanctity = 2;
+                    Celerity = 2;
+                    Luck = 1;
+                    break;
+                Dancer
+                    Celerity = 3;
+                    Skill = 2;
+                    Will = 2;
+                    Strength = 1;
+                    break;
+                Performer
+                    Sanctity = 3;
+                    Celerity = 2;
+                    Luck = 2;
+                    Strength = 1;
+                    break;

@@ -15,3 +15,6 @@
         add class/sub class
             add food
         
+
+    perosn class seems like the best idea, if there's the head of everything that is handled and that updates, it will be easier to update the calculator every update
+        person class has stat handler, also def handler for resistances/evade, then attack handler for hit, ele atk, etc
