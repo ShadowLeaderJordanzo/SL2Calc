@@ -1,10 +1,11 @@
 from tkinter import *
+from tkinter import tix
 from statClasses import *
 from personClass import *
 from databaseInfo import *
 currentVersion = "0.1"
 Data = Database()
-root = Tk()
+root = tix.Tk()
 classTest = ClassBonuses(name="Soldier",dataBase=Data)
 print(f"Soldier class has a {classTest.strength} strength boost")
 root.grid_columnconfigure(0,weight = 1)

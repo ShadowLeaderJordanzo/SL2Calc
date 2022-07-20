@@ -2,6 +2,7 @@ from msilib import init_database
 from tkinter import *
 from functools import partial
 import math
+from tkinter.tix import *
 class statHandler: # looks pretty ugly
 	points = 240
 	def __init__(self, stats, parent, pixel):
@@ -79,6 +80,8 @@ class stat:
 			return self.base+self.invested+self.customMod+self.baseMod+self.additonalMod+self.aptMod
 	def getTotalSoftCap(self):
 			return stat.softCapOffset + self.base + self.baseMod
+	def getBaseValues(self):
+			return f"{self.base+self.baseMod} + {self.invested}"
 	def getScaled(self):
 		totalStat = self.getTotal()
 		totalSoftCap = self.getTotalSoftCap()
@@ -127,22 +130,26 @@ class stat:
 		value = int(self.customModValue.get())
 		setattr(self, "customMod", value)
 		self.updateDisplay()
+	def adjustBalloonMsg(self,e):
+		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getBaseValues())
 	def addWidgets(self,parent, offsetRow, offsetColumn,pixel,name,handler):
 		attr_name = 'invested'
 		self.plusButton = Button(parent, text="+",command=partial(self.add,attr_name, 1,1,handler),
 			height=10,width=10, image=pixel, compound="c", repeatdelay=50, repeatinterval=50)
 		self.minusButton = Button(parent, text="-",command=partial(self.sub, attr_name, 1,handler),
 		height=10,width=10, image=pixel, compound="c", repeatdelay=50, repeatinterval=50)
-
+		#+ and - buttons
 		self.plusButton.grid(row=offsetRow, column=offsetColumn, padx=5,sticky=NSEW)
 		self.minusButton.grid(row=offsetRow, column=offsetColumn+1,sticky=NSEW)
-
+		#stat name / values
 		self.nameLabel = Label(parent, text=name, padx=5)
 		self.displayLabel = Label(parent, text="0")
 		self.nameLabel.grid(row=offsetRow,column=0,sticky='wsn')
 		self.displayLabel.grid(row=offsetRow, column=1,sticky='wsn')
-
-
+		self.nameBalloon = Balloon(parent)
+		self.nameLabel.bind("<Enter>", self.adjustBalloonMsg)
+		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getBaseValues())
+		#Mod names
 		self.customModValue = StringVar(value=0)
 		self.customMods = Spinbox(parent, from_=0,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.customModValue)
 		self.customMods.grid(row=offsetRow,column=offsetColumn+2,sticky=E)
