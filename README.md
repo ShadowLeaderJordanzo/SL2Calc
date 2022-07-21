@@ -18,3 +18,10 @@
 
     perosn class seems like the best idea, if there's the head of everything that is handled and that updates, it will be easier to update the calculator every update
         person class has stat handler, also def handler for resistances/evade, then attack handler for hit, ele atk, etc
+
+# FEATURES
+    folder that parse text files and auto adds weapons to it when initialized
+        this could work for races/classes and weapons, as it is currently a database handles all of this stuff, although i've never packaged things so im unsure how that'd work
+
+# Refactors
+    redo balloons, its deprecated and ugly

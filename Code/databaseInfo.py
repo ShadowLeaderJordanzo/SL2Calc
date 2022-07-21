@@ -4,7 +4,7 @@ import sqlite3
 class Database:
 
 	def __init__(self):
-		self.con = sqlite3.connect('database.db')
+		self.con = sqlite3.connect('Code/database.db')
 		self.cur = self.con.cursor()
 
 

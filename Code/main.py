@@ -1,13 +1,13 @@
 from tkinter import *
 from tkinter import tix
 from statClasses import *
+from classesClass import *
 from personClass import *
 from databaseInfo import *
 currentVersion = "0.1"
 Data = Database()
 root = tix.Tk()
 classTest = ClassBonuses(name="Soldier",dataBase=Data)
-print(f"Soldier class has a {classTest.strength} strength boost")
 root.grid_columnconfigure(0,weight = 1)
 root.title('Sigrogana Legend 2 Calculator')
 root.geometry("700x700")
@@ -16,6 +16,7 @@ currentStats = statHandler( stats = [stat(base=0,name="strength"),stat(base=0,na
 	stat(base=0,name="celerity"),stat(base=0,name="defense"),stat(base=0,name="resistance"),stat(base=0,name="vitality"),
 	stat(base=0,name="faith"),stat(base=0,name="luck"),stat(base=0,name="guile"),stat(base=0,name="sanctity"),stat(base=0,name="aptitude")],
 	parent=root, pixel=pixel)
+currentStats.setParents()
 version = Label(root, text="Version " + currentVersion)
 Label(root).grid(row=0,column=1, sticky=NSEW)
 version.grid(row=0,column=15,sticky=NSEW)

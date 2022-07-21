@@ -9,7 +9,6 @@ class ClassBonuses:
 	def __init__(self, name, dataBase): # probably sql to handle database of info 
 		dataBase.cur.execute('SELECT * FROM classes WHERE name=?', (name,))
 		data = dataBase.cur.fetchone()
-		print(data)
 		self.strength = data[1]
 		self.will = data[2]
 		self.skill = data[3]
@@ -25,6 +24,7 @@ class ClassBonuses:
 class Person:
 	# so if its class variable its essentially shared across all classes, but more like it exists as its own instance shared?? 
 	def __init__(self):
+		
 		self.race = "None"
 		self.mainClass = "None"
 		self.subClass = "None"

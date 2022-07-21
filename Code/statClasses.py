@@ -25,7 +25,20 @@ class statHandler: # looks pretty ugly
 			self.modsDisplay.grid(row=1,column=4,sticky=NSEW, columnspan=2)
 			self.whoops = Label(parent, width=5)
 			self.whoops.grid(row=1,column=7,sticky=NSEW,rowspan=13)
-
+			self.strength.handlerRef = self
+	def setParents(self):
+		self.strength.handlerRef = self
+		self.will.handlerRef = self
+		self.skill.handlerRef = self
+		self.celerity.handlerRef = self
+		self.defense.handlerRef = self
+		self.resistance.handlerRef = self
+		self.vitality.handlerRef = self
+		self.faith.handlerRef = self
+		self.luck.handlerRef = self
+		self.guile.handlerRef = self
+		self.sanctity.handlerRef = self
+		self.aptitude.handlerRef = self
 	def reducePoints(self, num):
 		if statHandler.points-num < 0: return 0
 		statHandler.points -= num
@@ -43,6 +56,8 @@ class statHandler: # looks pretty ugly
 		setattr(self.faith, "aptMod", amount)
 		setattr(self.vitality, "aptMod", amount)
 		setattr(self.resistance, "aptMod", amount)
+		self.updateAll()
+	def updateAll(self):
 		self.strength.updateDisplay()
 		self.will.updateDisplay()
 		self.skill.updateDisplay()
@@ -60,7 +75,7 @@ class statHandler: # looks pretty ugly
 class stat:
 	softCapOffset = 40 # 40+base
 	hardCap = 80 # cant go more than this in invested
-	def __init__(self, base, name):
+	def __init__(self, base, name,):
 		self.name = name
 		self.base = base
 		self.invested = 0
@@ -76,11 +91,14 @@ class stat:
 			self.displayLabel.config(text=f"{totalStat}")
 		else:
 			self.displayLabel.config(text=f"{realStat}({self.getScaled()})")
+		self.checkAdptitude(handler=self.handlerRef)
 	def getTotal(self):
 			return self.base+self.invested+self.customMod+self.baseMod+self.additonalMod+self.aptMod
 	def getTotalSoftCap(self):
 			return stat.softCapOffset + self.base + self.baseMod
-	def getBaseValues(self):
+	def getBaseInvested(self):
+			return self.base+self.baseMod + self.invested
+	def getToolTip(self):
 			return f"{self.base+self.baseMod} + {self.invested}"
 	def getScaled(self):
 		totalStat = self.getTotal()
@@ -101,27 +119,36 @@ class stat:
 			totalStat = self.getTotal()
 			totalSoftCap = self.getTotalSoftCap()
 			if totalSoftCap >= totalStat:
-				if self.invested%6==0:
+				if totalStat == 0: return
+				if totalStat%6 == 0:
+					print(totalStat%6)
 					handler.adjustAptMods(amount=totalStat/6)
+				else:
+					if (totalStat/6)-int(totalStat/6)==0:
+						handler.adjustAptMods(amount=totalStat/6)
+					else:
+						handler.adjustAptMods(amount=int(totalStat)/6)
 			else:
 				if self.getScaled()%6 < 1:
-					handler.adjustAptMods(amount=round(totalStat/6))
+					handler.adjustAptMods(amount=round(int(self.getScaled()/6)))
+					# handler.updateAll()
+				else:
+					handler.adjustAptMods(amount=round(int(self.getScaled()/6)))
 	def add(self, choice, num, hardCap,handler):
-		currentValue = getattr(self,choice)
+		currentValue = self.getBaseInvested()
 		if num == 0: num = 1
 		if handler.reducePoints(num=num) == 1:
 			if hardCap == 1:
 				if currentValue+num > 80: return
-			self.checkAdptitude(handler=handler)
-			setattr(self, choice, currentValue + num)
+			setattr(self, choice, self.invested + num)
 			self.updateDisplay()
 			handler.pointsRemaining.config(text=f"{statHandler.points} Points Remaining")
 	def sub(self, choice, num, handler):
 		currentValue = getattr(self,choice)
 		if currentValue-num < 0: return
+		self.updateDisplay()
 		setattr(self, choice, currentValue-num)
 		statHandler.points += num
-		self.checkAdptitude(self,handler)
 		self.updateDisplay()
 		handler.pointsRemaining.config(text=f"{statHandler.points} Points Remaining")
 	def update_modifiers(self):
@@ -130,14 +157,15 @@ class stat:
 		value = int(self.customModValue.get())
 		setattr(self, "customMod", value)
 		self.updateDisplay()
+		# self.handlerRef.updateAll(self=self.handlerRef)
 	def adjustBalloonMsg(self,e):
-		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getBaseValues())
+		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
 	def addWidgets(self,parent, offsetRow, offsetColumn,pixel,name,handler):
 		attr_name = 'invested'
 		self.plusButton = Button(parent, text="+",command=partial(self.add,attr_name, 1,1,handler),
-			height=10,width=10, image=pixel, compound="c", repeatdelay=50, repeatinterval=50)
+			height=10,width=10, image=pixel, compound="c", repeatdelay=100, repeatinterval=100)
 		self.minusButton = Button(parent, text="-",command=partial(self.sub, attr_name, 1,handler),
-		height=10,width=10, image=pixel, compound="c", repeatdelay=50, repeatinterval=50)
+		height=10,width=10, image=pixel, compound="c", repeatdelay=100, repeatinterval=100)
 		#+ and - buttons
 		self.plusButton.grid(row=offsetRow, column=offsetColumn, padx=5,sticky=NSEW)
 		self.minusButton.grid(row=offsetRow, column=offsetColumn+1,sticky=NSEW)
@@ -148,7 +176,7 @@ class stat:
 		self.displayLabel.grid(row=offsetRow, column=1,sticky='wsn')
 		self.nameBalloon = Balloon(parent)
 		self.nameLabel.bind("<Enter>", self.adjustBalloonMsg)
-		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getBaseValues())
+		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
 		#Mod names
 		self.customModValue = StringVar(value=0)
 		self.customMods = Spinbox(parent, from_=0,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.customModValue)
