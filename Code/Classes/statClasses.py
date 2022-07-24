@@ -5,27 +5,28 @@ import math
 from tkinter.tix import *
 class statHandler: # looks pretty ugly
 	points = 240
-	def __init__(self, stats, parent, pixel):
+	def __init__(self, stats, parent, pixel, person):
 		if len(stats) > 0:
-			self.strength = stats[0].addWidgets(parent=parent,offsetRow=3,offsetColumn=2,pixel=pixel,name="Strength", handler=self)
-			self.will = stats[1].addWidgets(parent=parent,offsetRow=4,offsetColumn=2,pixel=pixel,name="Will", handler=self)
-			self.skill = stats[2].addWidgets(parent=parent,offsetRow=5,offsetColumn=2,pixel=pixel,name="Skill", handler=self)
-			self.celerity = stats[3].addWidgets(parent=parent,offsetRow=6,offsetColumn=2,pixel=pixel,name="Celerity", handler=self)
-			self.defense = stats[4].addWidgets(parent=parent,offsetRow=7,offsetColumn=2,pixel=pixel,name="Defense", handler=self)
-			self.resistance = stats[5].addWidgets(parent=parent,offsetRow=8,offsetColumn=2,pixel=pixel,name="Resistance", handler=self)
-			self.vitality = stats[6].addWidgets(parent=parent,offsetRow=9,offsetColumn=2,pixel=pixel,name="Vitality", handler=self)
-			self.faith = stats[7].addWidgets(parent=parent,offsetRow=10,offsetColumn=2,pixel=pixel,name="Faith", handler=self)
-			self.luck = stats[8].addWidgets(parent=parent,offsetRow=11,offsetColumn=2,pixel=pixel,name="Luck", handler=self)
-			self.guile = stats[9].addWidgets(parent=parent,offsetRow=12,offsetColumn=2,pixel=pixel,name="Guile", handler=self)
-			self.sanctity = stats[10].addWidgets(parent=parent,offsetRow=13,offsetColumn=2,pixel=pixel,name="Sanctity", handler=self)
-			self.aptitude = stats[11].addWidgets(parent=parent,offsetRow=14,offsetColumn=2,pixel=pixel,name="Aptitude", handler=self)
+			self.strength = stats[0].addWidgets(parent=parent,offsetRow=4,offsetColumn=2,pixel=pixel,name="Strength", handler=self)
+			self.will = stats[1].addWidgets(parent=parent,offsetRow=5,offsetColumn=2,pixel=pixel,name="Will", handler=self)
+			self.skill = stats[2].addWidgets(parent=parent,offsetRow=6,offsetColumn=2,pixel=pixel,name="Skill", handler=self)
+			self.celerity = stats[3].addWidgets(parent=parent,offsetRow=7,offsetColumn=2,pixel=pixel,name="Celerity", handler=self)
+			self.defense = stats[4].addWidgets(parent=parent,offsetRow=8,offsetColumn=2,pixel=pixel,name="Defense", handler=self)
+			self.resistance = stats[5].addWidgets(parent=parent,offsetRow=9,offsetColumn=2,pixel=pixel,name="Resistance", handler=self)
+			self.vitality = stats[6].addWidgets(parent=parent,offsetRow=10,offsetColumn=2,pixel=pixel,name="Vitality", handler=self)
+			self.faith = stats[7].addWidgets(parent=parent,offsetRow=11,offsetColumn=2,pixel=pixel,name="Faith", handler=self)
+			self.luck = stats[8].addWidgets(parent=parent,offsetRow=12,offsetColumn=2,pixel=pixel,name="Luck", handler=self)
+			self.guile = stats[9].addWidgets(parent=parent,offsetRow=13,offsetColumn=2,pixel=pixel,name="Guile", handler=self)
+			self.sanctity = stats[10].addWidgets(parent=parent,offsetRow=14,offsetColumn=2,pixel=pixel,name="Sanctity", handler=self)
+			self.aptitude = stats[11].addWidgets(parent=parent,offsetRow=15,offsetColumn=2,pixel=pixel,name="Aptitude", handler=self)
 			self.pointsRemaining = Label(parent, text=f"{statHandler.points} Points Remaining",)
-			self.pointsRemaining.grid(row=1,column=0,sticky='wsn')
+			self.pointsRemaining.grid(row=2,column=1,sticky='wsn')
 			self.modsDisplay = Label(parent, text="Custom Modifiers" + "    " + "Base Modifiers")
-			self.modsDisplay.grid(row=1,column=4,sticky=NSEW, columnspan=2)
+			self.modsDisplay.grid(row=2,column=4,sticky=NSEW, columnspan=2)
 			self.whoops = Label(parent, width=5)
-			self.whoops.grid(row=1,column=7,sticky=NSEW,rowspan=13)
+			self.whoops.grid(row=2,column=7,sticky=NSEW,rowspan=13)
 			self.strength.handlerRef = self
+		self.player = person
 	def setParents(self):
 		self.strength.handlerRef = self
 		self.will.handlerRef = self
@@ -92,6 +93,7 @@ class stat:
 		else:
 			self.displayLabel.config(text=f"{realStat}({self.getScaled()})")
 		self.checkAdptitude(handler=self.handlerRef)
+		self.handlerRef.player.vitals.updateValues(stats=self.handlerRef)
 	def getTotal(self):
 			return self.base+self.invested+self.customMod+self.baseMod+self.additonalMod+self.aptMod
 	def getTotalSoftCap(self):
@@ -106,13 +108,16 @@ class stat:
 		currentStat = totalSoftCap
 		totalStat-=totalSoftCap
 		mod = 0.9
-		while totalStat > 3:
-			totalStat-=3
-			currentStat += 3 * mod
-			mod -= .08
-			if mod < 0.1: mod =0.1
-		currentStat += totalStat * mod
-		return round(currentStat,2)
+		if totalStat > 0:
+			while totalStat > 3:
+				totalStat-=3
+				currentStat += 3 * mod
+				mod -= .08
+				if mod < 0.1: mod =0.1
+			currentStat += totalStat * mod
+			return round(currentStat,2)
+		else: return self.getTotal()
+
 
 	def checkAdptitude(self,handler):
 		if self.name == "aptitude":
@@ -121,7 +126,6 @@ class stat:
 			if totalSoftCap >= totalStat:
 				if totalStat == 0: return
 				if totalStat%6 == 0:
-					print(totalStat%6)
 					handler.adjustAptMods(amount=totalStat/6)
 				else:
 					if (totalStat/6)-int(totalStat/6)==0:
@@ -179,11 +183,11 @@ class stat:
 		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
 		#Mod names
 		self.customModValue = StringVar(value=0)
-		self.customMods = Spinbox(parent, from_=0,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.customModValue)
+		self.customMods = Spinbox(parent, from_=-100,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.customModValue)
 		self.customMods.grid(row=offsetRow,column=offsetColumn+2,sticky=E)
 
 		self.baseModValue = StringVar(value=0)
-		self.baseMods = Spinbox(parent, from_=0,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.baseModValue)
+		self.baseMods = Spinbox(parent, from_=-100,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.baseModValue)
 		self.baseMods.grid(row=offsetRow,column=offsetColumn+3,sticky=E)
 		return self
 
