@@ -2,29 +2,28 @@ from msilib import init_database
 from tkinter import *
 from functools import partial
 import math
+from tkinter import ttk
 from tkinter.tix import *
 class statHandler: # looks pretty ugly
 	points = 240
 	def __init__(self, stats, parent, pixel, person):
 		if len(stats) > 0:
-			self.strength = stats[0].addWidgets(parent=parent,offsetRow=4,offsetColumn=2,pixel=pixel,name="Strength", handler=self)
-			self.will = stats[1].addWidgets(parent=parent,offsetRow=5,offsetColumn=2,pixel=pixel,name="Will", handler=self)
-			self.skill = stats[2].addWidgets(parent=parent,offsetRow=6,offsetColumn=2,pixel=pixel,name="Skill", handler=self)
-			self.celerity = stats[3].addWidgets(parent=parent,offsetRow=7,offsetColumn=2,pixel=pixel,name="Celerity", handler=self)
-			self.defense = stats[4].addWidgets(parent=parent,offsetRow=8,offsetColumn=2,pixel=pixel,name="Defense", handler=self)
-			self.resistance = stats[5].addWidgets(parent=parent,offsetRow=9,offsetColumn=2,pixel=pixel,name="Resistance", handler=self)
-			self.vitality = stats[6].addWidgets(parent=parent,offsetRow=10,offsetColumn=2,pixel=pixel,name="Vitality", handler=self)
-			self.faith = stats[7].addWidgets(parent=parent,offsetRow=11,offsetColumn=2,pixel=pixel,name="Faith", handler=self)
-			self.luck = stats[8].addWidgets(parent=parent,offsetRow=12,offsetColumn=2,pixel=pixel,name="Luck", handler=self)
-			self.guile = stats[9].addWidgets(parent=parent,offsetRow=13,offsetColumn=2,pixel=pixel,name="Guile", handler=self)
-			self.sanctity = stats[10].addWidgets(parent=parent,offsetRow=14,offsetColumn=2,pixel=pixel,name="Sanctity", handler=self)
-			self.aptitude = stats[11].addWidgets(parent=parent,offsetRow=15,offsetColumn=2,pixel=pixel,name="Aptitude", handler=self)
+			self.strength = stats[0].addWidgets(parent=parent,offsetRow=6,offsetColumn=2,pixel=pixel,name="Strength", handler=self)
+			self.will = stats[1].addWidgets(parent=parent,offsetRow=7,offsetColumn=2,pixel=pixel,name="Will", handler=self)
+			self.skill = stats[2].addWidgets(parent=parent,offsetRow=8,offsetColumn=2,pixel=pixel,name="Skill", handler=self)
+			self.celerity = stats[3].addWidgets(parent=parent,offsetRow=9,offsetColumn=2,pixel=pixel,name="Celerity", handler=self)
+			self.defense = stats[4].addWidgets(parent=parent,offsetRow=10,offsetColumn=2,pixel=pixel,name="Defense", handler=self)
+			self.resistance = stats[5].addWidgets(parent=parent,offsetRow=11,offsetColumn=2,pixel=pixel,name="Resistance", handler=self)
+			self.vitality = stats[6].addWidgets(parent=parent,offsetRow=12,offsetColumn=2,pixel=pixel,name="Vitality", handler=self)
+			self.faith = stats[7].addWidgets(parent=parent,offsetRow=13,offsetColumn=2,pixel=pixel,name="Faith", handler=self)
+			self.luck = stats[8].addWidgets(parent=parent,offsetRow=14,offsetColumn=2,pixel=pixel,name="Luck", handler=self)
+			self.guile = stats[9].addWidgets(parent=parent,offsetRow=15,offsetColumn=2,pixel=pixel,name="Guile", handler=self)
+			self.sanctity = stats[10].addWidgets(parent=parent,offsetRow=16,offsetColumn=2,pixel=pixel,name="Sanctity", handler=self)
+			self.aptitude = stats[11].addWidgets(parent=parent,offsetRow=17,offsetColumn=2,pixel=pixel,name="Aptitude", handler=self)
 			self.pointsRemaining = Label(parent, text=f"{statHandler.points} Points Remaining",)
-			self.pointsRemaining.grid(row=2,column=1,sticky='wsn')
-			self.modsDisplay = Label(parent, text="Custom Modifiers" + "    " + "Base Modifiers")
-			self.modsDisplay.grid(row=2,column=4,sticky=NSEW, columnspan=2)
-			self.whoops = Label(parent, width=5)
-			self.whoops.grid(row=2,column=7,sticky=NSEW,rowspan=13)
+			self.pointsRemaining.grid(row=5,column=0,sticky=W)
+			self.modsDisplay = Label(parent, text="Custom Mod" + "    " + "Base Mod",padx=26)
+			self.modsDisplay.grid(row=5,column=2,sticky=W)
 			self.strength.handlerRef = self
 		self.player = person
 	def setParents(self):
@@ -166,29 +165,38 @@ class stat:
 		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
 	def addWidgets(self,parent, offsetRow, offsetColumn,pixel,name,handler):
 		attr_name = 'invested'
-		self.plusButton = Button(parent, text="+",command=partial(self.add,attr_name, 1,1,handler),
+		theFrame = Frame(parent)
+		theFrame.grid(row=offsetRow,column=0,sticky=W)
+		theFrame.columnconfigure(0,weight=1)
+		theFrame.columnconfigure(1,weight=1)
+		theFrame1 = ttk.Frame(parent)
+		theFrame1['padding'] = (-50,0,0,0)
+		theFrame1.grid(row=offsetRow,column=2,sticky=W)
+		theFrame1.columnconfigure(0,weight=1)
+		theFrame1.columnconfigure(1,weight=1)
+		self.plusButton = Button(theFrame1, text="+",command=partial(self.add,attr_name, 1,1,handler),
 			height=10,width=10, image=pixel, compound="c", repeatdelay=100, repeatinterval=100)
-		self.minusButton = Button(parent, text="-",command=partial(self.sub, attr_name, 1,handler),
+		self.minusButton = Button(theFrame1, text="-",command=partial(self.sub, attr_name, 1,handler),
 		height=10,width=10, image=pixel, compound="c", repeatdelay=100, repeatinterval=100)
 		#+ and - buttons
-		self.plusButton.grid(row=offsetRow, column=offsetColumn, padx=5,sticky=NSEW)
-		self.minusButton.grid(row=offsetRow, column=offsetColumn+1,sticky=NSEW)
+		self.plusButton.grid(row=0, column=0,sticky=W)
+		self.minusButton.grid(row=0, column=1,sticky=W)
 		#stat name / values
-		self.nameLabel = Label(parent, text=name, padx=5)
+		self.nameLabel = Label(theFrame, text=name)
 		self.displayLabel = Label(parent, text="0")
-		self.nameLabel.grid(row=offsetRow,column=0,sticky='wsn')
-		self.displayLabel.grid(row=offsetRow, column=1,sticky='wsn')
+		self.nameLabel.grid(row=0,column=0,sticky=W)
+		self.displayLabel.grid(row=offsetRow, column=1,columnspan=2,sticky=W)
 		self.nameBalloon = Balloon(parent)
 		self.nameLabel.bind("<Enter>", self.adjustBalloonMsg)
 		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
 		#Mod names
 		self.customModValue = StringVar(value=0)
-		self.customMods = Spinbox(parent, from_=-100,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.customModValue)
-		self.customMods.grid(row=offsetRow,column=offsetColumn+2,sticky=E)
+		self.customMods = Spinbox(theFrame1, from_=-100,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.customModValue)
+		self.customMods.grid(row=0,column=2,sticky=W)
 
 		self.baseModValue = StringVar(value=0)
-		self.baseMods = Spinbox(parent, from_=-100,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.baseModValue)
-		self.baseMods.grid(row=offsetRow,column=offsetColumn+3,sticky=E)
+		self.baseMods = Spinbox(theFrame1, from_=-100,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.baseModValue)
+		self.baseMods.grid(row=0,column=3,sticky=W)
 		return self
 
 # trid to reverse the equation

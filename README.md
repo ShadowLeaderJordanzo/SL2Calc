@@ -25,3 +25,4 @@
 
 # Refactors
     redo balloons, its deprecated and ugly
+    wrap stats around a frame so they  aren't forced to be randomly BIG
