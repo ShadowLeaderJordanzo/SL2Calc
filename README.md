@@ -46,6 +46,8 @@ make it functional
 
 ~~add class/sub class~~
 
+add main / sub class passive spinbox
+
 make it functional 
 
 ~~add food~~
