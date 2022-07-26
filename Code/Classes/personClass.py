@@ -4,6 +4,7 @@ from tkinter import ttk
 
 from Classes.classesClass import *
 from Classes.vitals import Vital
+from Classes.eleHandler import EleHandler
 from databaseInfo import *
 from Classes.statClasses import *
 
@@ -39,7 +40,7 @@ class Person:
 	# so if its class variable its essentially shared across all classes, but more like it exists as its own instance shared?? 
 	def __init__(self, root, pixel,dataBase):
 		self.vitals = Vital(parent=root)
-		self.eleHandler = NULL # ELE ATKS / ELE DEF
+		self.eleHandler = EleHandler(parent=root,pixel=pixel,person=self) # ELE ATKS / ELE DEF
 		self.atkHandler = NULL # hit/crit/status infliction/flanking 
 		self.defHandler = NULL # Phys% Mag Def % Evade crit evade Status Resist
 		self.othersHandler = NULL # youkai cap, skill pool, init, bw / encumbrance
@@ -59,13 +60,15 @@ class Person:
 		result = []
 		records = Data.cur.fetchall()
 		for row in records:
-			print(row[0])
 			result.append(row[0])
 		return result
 	def makeDisplay(self,root,dataBase):
 		infoFrame = Frame(root)
-		infoFrame.grid(row=3,column=0,sticky=W,columnspan=6)
+		infoFrame.grid(row=3,column=0,sticky=W,columnspan=4)
 		infoFrame.columnconfigure(0,weight=1)
+		infoFrame.columnconfigure(1,weight=1)
+		infoFrame.columnconfigure(2,weight=1)
+		infoFrame.columnconfigure(3,weight=1)
 		raceLabel = Label(infoFrame, text="Race:")
 		raceLabel.grid(row=0,column=0,sticky=W)
 		self.currentRace = StringVar(value='_HUMANS_')

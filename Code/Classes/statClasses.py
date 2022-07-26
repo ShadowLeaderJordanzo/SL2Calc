@@ -6,24 +6,46 @@ from tkinter import ttk
 from tkinter.tix import *
 class statHandler: # looks pretty ugly
 	points = 240
+	sloppyList = ["strength","will","skill","celerity","defense","resistance","vitality","faith","luck","guile","sanctity","aptitude"]
 	def __init__(self, stats, parent, pixel, person):
 		if len(stats) > 0:
-			self.strength = stats[0].addWidgets(parent=parent,offsetRow=6,offsetColumn=2,pixel=pixel,name="Strength", handler=self)
-			self.will = stats[1].addWidgets(parent=parent,offsetRow=7,offsetColumn=2,pixel=pixel,name="Will", handler=self)
-			self.skill = stats[2].addWidgets(parent=parent,offsetRow=8,offsetColumn=2,pixel=pixel,name="Skill", handler=self)
-			self.celerity = stats[3].addWidgets(parent=parent,offsetRow=9,offsetColumn=2,pixel=pixel,name="Celerity", handler=self)
-			self.defense = stats[4].addWidgets(parent=parent,offsetRow=10,offsetColumn=2,pixel=pixel,name="Defense", handler=self)
-			self.resistance = stats[5].addWidgets(parent=parent,offsetRow=11,offsetColumn=2,pixel=pixel,name="Resistance", handler=self)
-			self.vitality = stats[6].addWidgets(parent=parent,offsetRow=12,offsetColumn=2,pixel=pixel,name="Vitality", handler=self)
-			self.faith = stats[7].addWidgets(parent=parent,offsetRow=13,offsetColumn=2,pixel=pixel,name="Faith", handler=self)
-			self.luck = stats[8].addWidgets(parent=parent,offsetRow=14,offsetColumn=2,pixel=pixel,name="Luck", handler=self)
-			self.guile = stats[9].addWidgets(parent=parent,offsetRow=15,offsetColumn=2,pixel=pixel,name="Guile", handler=self)
-			self.sanctity = stats[10].addWidgets(parent=parent,offsetRow=16,offsetColumn=2,pixel=pixel,name="Sanctity", handler=self)
-			self.aptitude = stats[11].addWidgets(parent=parent,offsetRow=17,offsetColumn=2,pixel=pixel,name="Aptitude", handler=self)
-			self.pointsRemaining = Label(parent, text=f"{statHandler.points} Points Remaining",)
-			self.pointsRemaining.grid(row=5,column=0,sticky=W)
-			self.modsDisplay = Label(parent, text="Custom Mod" + "    " + "Base Mod",padx=26)
-			self.modsDisplay.grid(row=5,column=2,sticky=W)
+			self.strength = stats[0]
+			self.will = stats[1]
+			self.skill = stats[2]
+			self.celerity = stats[3]
+			self.defense = stats[4]
+			self.resistance = stats[5]
+			self.vitality = stats[6]
+			self.faith = stats[7]
+			self.luck = stats[8]
+			self.guile = stats[9]
+			self.sanctity = stats[10]
+			self.aptitude = stats[11]
+			# maybe just like a frame function, no matter what i do i seem to bloat code with the frame - > label -> grid movement and it makes a function look ugly
+			textFrame = ttk.Frame(parent)
+			textFrame.grid(row=5,column=0,sticky=W)
+			self.pointsRemaining = Label(textFrame, text=f"{statHandler.points} Points Remaining",)
+			self.pointsRemaining.grid(row=0,column=0,sticky=W)
+			displayRand = Label(textFrame, text="",padx=13)
+			displayRand.grid(row=0,column=1)
+			self.modsDisplay1 = Label(textFrame, text="Custom Mod",padx=5)
+			self.modsDisplay1.grid(row=0,column=2,sticky=W)
+			self.modsDisplay2 = Label(textFrame, text="Base Mod",padx=0)
+			self.modsDisplay2.grid(row=0,column=3,sticky=W)
+			for columns in range(textFrame.grid_size()[0]):
+				textFrame.columnconfigure(columns,weight=1)
+			self.statFrame = ttk.Frame(parent)
+			self.statFrame.grid(row=6,column=0,sticky=W,columnspan=6)
+			index = 5
+			for arg in vars(self):
+				if arg in statHandler.sloppyList:
+					index+=1
+					namesake = arg[:1].upper()
+					namesake = namesake + arg[1:]
+					getattr(self, arg).addStats(offsetRow=index, offsetColumn=0, pixel=pixel, name=namesake,handler=self,holder=self.statFrame)
+					getattr(self, arg).addWidgets(parent=self.statFrame, offsetRow=index, offsetColumn=0)
+			for columns in range(self.statFrame.grid_size()[0]):
+				self.statFrame.columnconfigure(columns,weight=1)
 			self.strength.handlerRef = self
 		self.player = person
 	def setParents(self):
@@ -69,9 +91,6 @@ class statHandler: # looks pretty ugly
 		self.luck.updateDisplay()
 		self.guile.updateDisplay()
 		self.sanctity.updateDisplay()
-		
-
-	
 class stat:
 	softCapOffset = 40 # 40+base
 	hardCap = 80 # cant go more than this in invested
@@ -93,6 +112,7 @@ class stat:
 			self.displayLabel.config(text=f"{realStat}({self.getScaled()})")
 		self.checkAdptitude(handler=self.handlerRef)
 		self.handlerRef.player.vitals.updateValues(stats=self.handlerRef)
+		self.handlerRef.player.eleHandler.updateALL()
 	def getTotal(self):
 			return self.base+self.invested+self.customMod+self.baseMod+self.additonalMod+self.aptMod
 	def getTotalSoftCap(self):
@@ -116,8 +136,6 @@ class stat:
 			currentStat += totalStat * mod
 			return round(currentStat,2)
 		else: return self.getTotal()
-
-
 	def checkAdptitude(self,handler):
 		if self.name == "aptitude":
 			totalStat = self.getTotal()
@@ -163,41 +181,34 @@ class stat:
 		# self.handlerRef.updateAll(self=self.handlerRef)
 	def adjustBalloonMsg(self,e):
 		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
-	def addWidgets(self,parent, offsetRow, offsetColumn,pixel,name,handler):
+	def addStats(self, offsetRow, offsetColumn, pixel, name,handler,holder):
 		attr_name = 'invested'
-		theFrame = Frame(parent)
-		theFrame.grid(row=offsetRow,column=0,sticky=W)
-		theFrame.columnconfigure(0,weight=1)
-		theFrame.columnconfigure(1,weight=1)
-		theFrame1 = ttk.Frame(parent)
-		theFrame1['padding'] = (-50,0,0,0)
-		theFrame1.grid(row=offsetRow,column=2,sticky=W)
-		theFrame1.columnconfigure(0,weight=1)
-		theFrame1.columnconfigure(1,weight=1)
-		self.plusButton = Button(theFrame1, text="+",command=partial(self.add,attr_name, 1,1,handler),
+		self.plusButton = Button(holder, text="+",command=partial(self.add,attr_name, 1,1,handler),
 			height=10,width=10, image=pixel, compound="c", repeatdelay=100, repeatinterval=100)
-		self.minusButton = Button(theFrame1, text="-",command=partial(self.sub, attr_name, 1,handler),
+		self.minusButton = Button(holder, text="-",command=partial(self.sub, attr_name, 1,handler),
 		height=10,width=10, image=pixel, compound="c", repeatdelay=100, repeatinterval=100)
 		#+ and - buttons
-		self.plusButton.grid(row=0, column=0,sticky=W)
-		self.minusButton.grid(row=0, column=1,sticky=W)
+		self.plusButton.grid(row=offsetRow, column=offsetColumn+2,sticky=W)
+		self.minusButton.grid(row=offsetRow, column=offsetColumn+3,sticky=W)
 		#stat name / values
-		self.nameLabel = Label(theFrame, text=name)
-		self.displayLabel = Label(parent, text="0")
-		self.nameLabel.grid(row=0,column=0,sticky=W)
-		self.displayLabel.grid(row=offsetRow, column=1,columnspan=2,sticky=W)
-		self.nameBalloon = Balloon(parent)
+		self.nameLabel = Label(holder, text=name)
+		self.displayLabel = Label(holder, text="0",width=7)
+		self.nameLabel.grid(row=offsetRow,column=offsetColumn,sticky=W)
+		self.displayLabel.grid(row=offsetRow, column=offsetColumn+1,sticky=W)
+		self.nameBalloon = Balloon(holder)
 		self.nameLabel.bind("<Enter>", self.adjustBalloonMsg)
 		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
+	def addWidgets(self,parent, offsetRow, offsetColumn):
 		#Mod names
 		self.customModValue = StringVar(value=0)
-		self.customMods = Spinbox(theFrame1, from_=-100,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.customModValue)
-		self.customMods.grid(row=0,column=2,sticky=W)
+		self.customMods = Spinbox(parent, from_=-100,to=100,increment=1,format='%10.0f',width=6,wrap=True, command=self.update_modifiers,textvariable=self.customModValue)
+		self.customMods.grid(row=offsetRow,column=offsetColumn+4,sticky=W,padx=15)
+		self.customMods.xview_moveto(1)
 
 		self.baseModValue = StringVar(value=0)
-		self.baseMods = Spinbox(theFrame1, from_=-100,to=100,increment=1,format='%10.0f',width=8, command=self.update_modifiers,textvariable=self.baseModValue)
-		self.baseMods.grid(row=0,column=3,sticky=W)
-		return self
+		self.baseMods = Spinbox(parent, from_=-100,to=100,increment=1,format='%10.0f',width=6,wrap=True, command=self.update_modifiers,textvariable=self.baseModValue)
+		self.baseMods.grid(row=offsetRow,column=offsetColumn+5,sticky=W,padx=5)
+		self.baseMods.xview_moveto(1)
 
 # trid to reverse the equation
 #

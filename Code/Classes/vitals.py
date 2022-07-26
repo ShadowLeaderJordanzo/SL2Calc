@@ -1,7 +1,5 @@
-from re import S
 from tkinter import *
 from tkinter import ttk
-
 from Classes.statClasses import statHandler
 
 
@@ -47,8 +45,7 @@ class Vital:
 		print("update")
 	def makeDisplay(self, handler):
 		displayFrame = ttk.Frame(handler)
-		displayFrame.columnconfigure(0,weight=1)
-		displayFrame.grid(row=0,column=0,sticky=W)
+		displayFrame.grid(row=0,column=0,sticky=W,columnspan=9)
   
 		self.healthDisplay = Label(displayFrame, text=f"HP: {self.getCurrentHealth()}/{self.getMaxHealth()}", fg='#FF0000') 
 		self.focusDisplay = Label(displayFrame, text=f"FP: {self.getCurrentFocus()}/{self.getMaxFocus()}", fg='#0000FF') 
@@ -61,57 +58,52 @@ class Vital:
 		modFrame.columnconfigure(0,weight=1)
 		modFrame.grid(row=0,column=1,sticky=EW)
   
-		modLabel1 = Label(modFrame, text="Custom HP:")
-		modLabel2 = Label(modFrame, text="Custom FP:")
+		modLabel1 = Label(displayFrame, text="Custom HP:")
+		modLabel2 = Label(displayFrame, text="Custom FP:")
   
 		self.customHealthModValue = StringVar(value=0)
 		self.customFocusModValue = StringVar(value=0)
-		self.customHealthMod = Spinbox(modFrame, from_=-1000, to=1000, increment=1, format='%10.0f', width=8,
+		self.customHealthMod = Spinbox(displayFrame, from_=-1000, to=1000, increment=1, format='%10.0f', width=8,
 									   command=self.updateModifiers, textvariable=self.customHealthModValue)
-		self.customFocusMod = Spinbox(modFrame, from_=-1000, to=1000, increment=1, format='%10.0f', width=8,
+		self.customFocusMod = Spinbox(displayFrame, from_=-1000, to=1000, increment=1, format='%10.0f', width=8,
 									   command=self.updateModifiers, textvariable=self.customFocusModValue)
   
-		modLabel1.grid(row=0, column=0, sticky=EW)
-		modLabel2.grid(row=1, column=0, sticky=EW)		
-		self.customHealthMod.grid(row=0, column=1, sticky=EW)
-		self.customFocusMod.grid(row=1, column=1, sticky=EW)
+		modLabel1.grid(row=0, column=1, sticky=EW)
+		modLabel2.grid(row=1, column=1, sticky=EW)		
+		self.customHealthMod.grid(row=0, column=2, sticky=EW)
+		self.customFocusMod.grid(row=1, column=2, sticky=EW)
   
-		percentFrame = ttk.Frame(handler)	
-		percentFrame.columnconfigure(0,weight=1)
-		percentFrame.grid(row=0,column=2,sticky=EW)
 		self.percentHealthModValue = StringVar(value=100)
 		self.percentFocusModValue = StringVar(value=100)		
-		percentLabel1 = Label(percentFrame, text="Total HP%:")
-		percentLabel2 = Label(percentFrame, text="Total FP%:")
-		self.percentHealthMod = Spinbox(percentFrame, from_=0, to=200, increment=1, format='%10.0f', width=8,
+		percentLabel1 = Label(displayFrame, text="Total HP%:")
+		percentLabel2 = Label(displayFrame, text="Total FP%:")
+		self.percentHealthMod = Spinbox(displayFrame, from_=0, to=200, increment=1, format='%10.0f', width=8,
 									   command=self.updateModifiers, textvariable=self.percentHealthModValue)
-		self.percentFocusMod = Spinbox(percentFrame, from_=0, to=200, increment=1, format='%10.0f', width=8,
+		self.percentFocusMod = Spinbox(displayFrame, from_=0, to=200, increment=1, format='%10.0f', width=8,
 									   command=self.updateModifiers, textvariable=self.percentFocusModValue)
-		self.percentHealthMod.grid(row=0, column=1, sticky=EW)
-		self.percentFocusMod.grid(row=1, column=1, sticky=EW)
-		percentLabel1.grid(row=0, column=0, sticky=EW)
-		percentLabel2.grid(row=1, column=0, sticky=EW)
+		self.percentHealthMod.grid(row=0, column=4, sticky=EW)
+		self.percentFocusMod.grid(row=1, column=4, sticky=EW)
+		percentLabel1.grid(row=0, column=3, sticky=EW)
+		percentLabel2.grid(row=1, column=3, sticky=EW)
 		# break off into different function and split it up, can really really refactor / optimize all of this
-		options = ttk.Frame(handler)
-		options.columnconfigure(0,weight=1)
-		options.grid(row=0,column=3,sticky=EW)
-		giantLabel = Label(options,text="Giant Gene")
-		fortLabel = Label(options,text="Fortitude")
-		endLabel = Label(options,text="Endurance")
-		warLabel = Label(options,text="Warwalk")
-		giantLabel.grid(row=0,column=0, sticky=EW)
-		fortLabel.grid(row=1,column=0, sticky=EW)
-		endLabel.grid(row=0,column=2, sticky=EW)
-		warLabel.grid(row=1,column=2, sticky=EW)
-		self.giant = Checkbutton(options, command=self.checkBoxUpdate,onvalue='on',offvalue='off')
-		self.fortitude = Checkbutton(options, command=self.checkBoxUpdate,onvalue='on',offvalue='off')
-		self.endurance = Checkbutton(options, command=self.checkBoxUpdate,onvalue='on',offvalue='off')
-		self.warwalk = Checkbutton(options, command=self.checkBoxUpdate,onvalue='on',offvalue='off')
-		self.giant.grid(row=0,column=1,sticky=EW)
-		self.fortitude.grid(row=1,column=1,sticky=EW)
-		self.endurance.grid(row=0,column=3,sticky=EW)
-		self.warwalk.grid(row=1,column=3,sticky=EW)
-  
+		giantLabel = Label(displayFrame,text="Giant Gene")
+		fortLabel = Label(displayFrame,text="Fortitude")
+		endLabel = Label(displayFrame,text="Endurance")
+		warLabel = Label(displayFrame,text="Warwalk")
+		giantLabel.grid(row=0,column=5, sticky=EW)
+		fortLabel.grid(row=1,column=5, sticky=EW)
+		endLabel.grid(row=0,column=7, sticky=EW)
+		warLabel.grid(row=1,column=7, sticky=EW)
+		self.giant = Checkbutton(displayFrame, command=self.checkBoxUpdate,onvalue='on',offvalue='off')
+		self.fortitude = Checkbutton(displayFrame, command=self.checkBoxUpdate,onvalue='on',offvalue='off')
+		self.endurance = Checkbutton(displayFrame, command=self.checkBoxUpdate,onvalue='on',offvalue='off')
+		self.warwalk = Checkbutton(displayFrame, command=self.checkBoxUpdate,onvalue='on',offvalue='off')
+		self.giant.grid(row=0,column=6,sticky=EW)
+		self.fortitude.grid(row=1,column=6,sticky=EW)
+		self.endurance.grid(row=0,column=8,sticky=EW)
+		self.warwalk.grid(row=1,column=8,sticky=EW)
+		for columns in range(displayFrame.grid_size()[0]):
+			displayFrame.columnconfigure(columns,weight=1)
   
   
   # make this cleaner later, less repeated code, more functions to handle this all
