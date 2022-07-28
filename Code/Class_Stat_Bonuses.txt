@@ -1,0 +1,70 @@
+                Black Knight
+                    max = 6;
+                    defense = 0;
+                    break;
+                Priest
+                    max = 6;
+                    faith = 0;
+                    break;
+                Lantern Bearer
+                    max = 6;
+                    resistance = 0;
+                    break;
+                Arbalest
+                    max = 6;
+                    skill = 0;
+                    break;
+                Magic Gunner
+                    max = 3;
+                    celerity = 0;
+                    resistance = 0;
+                    break;
+                Ghost
+                    max = 5;
+                    resistance = 0;
+                    break;
+                Kensei
+                    max = 3;
+                    strength = 0;
+                    skill = 0;
+                    break;
+                Evoker
+                    max = 6;
+                    will = 0;
+                    break;
+                Hexer
+                    max = 3;
+                    defense = 0;
+                    resistance = 0;
+                    break;
+                Monk
+                    max = 3;
+                    skill = 0;
+                    celerity = 0;
+                    break;
+                Engineer
+                    max = 6;
+                    guile = 0;
+                    break;
+                Void Assassin
+                    max = 3;
+                    skill = 0;
+                    resistance = 0;
+                    break;
+                Bonder
+                    max = 3;
+                    will = 0;
+                    faith = 0;
+                    break;
+                Bard
+                    max = 6;
+                    sanctity = 0;
+                    break;
+                Dancer
+                    max = 6;
+                     sanctity = 0;
+                    break;
+                Performer
+                    max = 6;
+                    sanctity = 0;
+                    break;

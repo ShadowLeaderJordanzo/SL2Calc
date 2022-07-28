@@ -10,7 +10,6 @@ test = 1
 currentVersion = "0.1"
 Data = Database()
 root = tix.Tk()
-classTest = ClassBonuses(name="Soldier",dataBase=Data)
 root.title('Sigrogana Legend 2 Calculator')
 root.geometry("900x600")
 pixel = PhotoImage(width=1, height=1)

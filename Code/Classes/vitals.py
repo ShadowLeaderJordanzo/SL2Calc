@@ -11,15 +11,17 @@ class Vital:
 		self.customFocus = 0
 		self.percentHealth = 100
 		self.percentFocus = 100
+		self.hpShards = 0
+		self.focusShards = 0
 		self.makeDisplay(handler=parent)
 	def getMaxHealth(self):
-		return int(round((self.health+self.customHealth) * ( self.percentHealth / 100 ),1))
+		return int(self.getCurrentHealth() * ( self.percentHealth / 100 ))
 	def getCurrentHealth(self):
-		return round(self.health+self.customHealth,1)
+		return round(self.health+self.customHealth+self.hpShards,1)
 	def getMaxFocus(self):
-		return int(round((self.focus+self.customFocus) * ( self.percentFocus / 100 ),1))
+		return int(self.getCurrentFocus() * ( self.percentFocus / 100 ))
 	def getCurrentFocus(self):
-		return self.focus+self.customFocus
+		return self.focus+self.customFocus+self.focusShards
 	def addHealth(self, num):
 		self.health+=num
 	def addFocus(self, num):
@@ -40,6 +42,10 @@ class Vital:
 		setattr(self, "percentHealth", value)
 		value = int(self.percentFocusMod.get())
 		setattr(self, "percentFocus", value)
+		value = int(self.hpShardMod.get())
+		setattr(self, "hpShards", value)
+		value = int(self.focusShardMod.get())
+		setattr(self, "focusShards", value)
 		self.updateDisplay() 
 	def checkBoxUpdate(self):
 		print("update")
@@ -85,6 +91,20 @@ class Vital:
 		self.percentFocusMod.grid(row=1, column=4, sticky=EW)
 		percentLabel1.grid(row=0, column=3, sticky=EW)
 		percentLabel2.grid(row=1, column=3, sticky=EW)
+  
+  
+		self.hpShardValue = StringVar(value=0)
+		self.focusShardValue = StringVar(value=0)
+		shardLabel1 = Label(displayFrame,text="HPShard:")
+		shardLabel2 = Label(displayFrame,text="FPShard:")
+		self.hpShardMod = Spinbox(displayFrame, from_=0, to=45, increment=1, format='%10.0f', width=8,
+									   command=self.updateModifiers, textvariable=self.hpShardValue)
+		self.focusShardMod = Spinbox(displayFrame, from_=0, to=45, increment=1, format='%10.0f', width=8,
+									   command=self.updateModifiers, textvariable=self.focusShardValue)
+		shardLabel1.grid(row=0,column=9)
+		shardLabel2.grid(row=1,column=9)
+		self.hpShardMod.grid(row=0, column=10)
+		self.focusShardMod.grid(row=1, column=10)
 		# break off into different function and split it up, can really really refactor / optimize all of this
 		giantLabel = Label(displayFrame,text="Giant Gene")
 		fortLabel = Label(displayFrame,text="Fortitude")

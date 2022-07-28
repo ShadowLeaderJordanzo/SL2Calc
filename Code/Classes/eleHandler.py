@@ -1,15 +1,16 @@
 from asyncio.windows_events import NULL
 import tkinter
 from Classes.statClasses import *
-
+from tkinter import *  
+from PIL import Image,ImageTk
 
 class EleHandler:
-	def __init__(self, parent,pixel,person):
+	def __init__(self, parent,pixel,person,root):
 		self.eleATK = {"fire":0, "ice":0,"wind":0,"earth":0,"dark":0,"water":0,"light":0,"lightning":0, "acid":0,"sound":0}
 		self.eleRES = {"fire":0, "ice":0,"wind":0,"earth":0,"dark":0,"water":0,"light":0,"lightning":0, "acid":0,"sound":0}
 		self.eleFrame = ttk.Frame(parent)
-		self.eleFrame.grid(row=6,column=1,sticky=W)
-		textFrame = ttk.Frame(parent)
+		self.eleFrame.grid(row=0,column=1,sticky=W)
+		textFrame = ttk.Frame(root)
 		textFrame.grid(row=5,column=1,sticky=W)
 		self.text = Label(textFrame, text="ElemATK")
 		self.text.grid(row=0,column=0)
@@ -26,6 +27,7 @@ class EleHandler:
 				blank.grid(row=index, column=2)
 				lumEle = Checkbutton(self.eleFrame)
 				lumEle.grid(row=index, column=1)
+				Label(self.eleFrame, image=pixel,height=26).grid(row=index,column=0)
 				self.eleATK[key].addWidgets(parent=self.eleFrame,offsetRow=2,offsetColumn=0)
 				self.eleATK[key].addStats(holder=self.eleFrame,offsetRow=2,offsetColumn=0,pixel=pixel,name=key,stat=statHandler.sloppyList[2],handler=self)
 				index+=2
@@ -33,8 +35,7 @@ class EleHandler:
 				self.eleATK[key].addWidgets(parent=self.eleFrame,offsetRow=index,offsetColumn=0)
 				self.eleATK[key].addStats(holder=self.eleFrame,offsetRow=index,offsetColumn=0,pixel=pixel,name=key,stat=statHandler.sloppyList[index],handler=self)
 				index+=1
-		blank1 = Label(self.eleFrame, text="")
-		blank1.grid(row=11,column=0)
+		Label(self.eleFrame, text="",image=pixel,height=26).grid(row=11,column=0)
 		self.thePlayer = person
 	def updateALL(self):
 		for key, value in self.eleATK.items():
@@ -56,12 +57,14 @@ class eleStat(stat):
 		setattr(self, "customMod", value)
 		self.updateDisplay()
 	def addStats(self, offsetRow, offsetColumn, pixel, name, stat, holder,handler):
-		self.Icon = Label(holder, text=name)
+		imagePath = f"Images/{name}.png"
+		self.theIcon = ImageTk.PhotoImage(Image.open(imagePath))
+		self.Icon = Label(holder, image=self.theIcon,height=26)
 		self.Icon.grid(row=offsetRow, column=offsetColumn)
 		self.display = Label(holder, text="0",width=4)
 		self.display.grid(row=offsetRow,column=offsetColumn+1)
 		self.refStat = stat
-		print(self.refStat)
+
 	def addWidgets(self, parent, offsetRow, offsetColumn):
 		self.customModValue = StringVar(value=0)
 		self.customMods = Spinbox(parent, from_=-100,to=100,increment=1,format='%10.0f',width=6,wrap=True,justify=LEFT,

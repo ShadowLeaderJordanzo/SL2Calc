@@ -1,3 +1,4 @@
+from asyncio.windows_events import NULL
 from msilib import init_database
 from tkinter import *
 from functools import partial
@@ -7,7 +8,7 @@ from tkinter.tix import *
 class statHandler: # looks pretty ugly
 	points = 240
 	sloppyList = ["strength","will","skill","celerity","defense","resistance","vitality","faith","luck","guile","sanctity","aptitude"]
-	def __init__(self, stats, parent, pixel, person):
+	def __init__(self, stats, parent, pixel, person,root):
 		if len(stats) > 0:
 			self.strength = stats[0]
 			self.will = stats[1]
@@ -22,7 +23,7 @@ class statHandler: # looks pretty ugly
 			self.sanctity = stats[10]
 			self.aptitude = stats[11]
 			# maybe just like a frame function, no matter what i do i seem to bloat code with the frame - > label -> grid movement and it makes a function look ugly
-			textFrame = ttk.Frame(parent)
+			textFrame = ttk.Frame(root)
 			textFrame.grid(row=5,column=0,sticky=W)
 			self.pointsRemaining = Label(textFrame, text=f"{statHandler.points} Points Remaining",)
 			self.pointsRemaining.grid(row=0,column=0,sticky=W)
@@ -35,7 +36,7 @@ class statHandler: # looks pretty ugly
 			for columns in range(textFrame.grid_size()[0]):
 				textFrame.columnconfigure(columns,weight=1)
 			self.statFrame = ttk.Frame(parent)
-			self.statFrame.grid(row=6,column=0,sticky=W,columnspan=6)
+			self.statFrame.grid(row=0,column=0,sticky=W)
 			index = 5
 			for arg in vars(self):
 				if arg in statHandler.sloppyList:
@@ -91,6 +92,44 @@ class statHandler: # looks pretty ugly
 		self.luck.updateDisplay()
 		self.guile.updateDisplay()
 		self.sanctity.updateDisplay()
+	def assignClassStats(self, results,columns, main):
+		index=0
+		for name in columns:
+			if name == "name":
+				index+=1
+				continue
+			increase = results[0][index]
+			if increase == None: increase = 0
+			increase = int(increase)
+			currentVar = setattr(getattr(self, name),main, increase)
+			index += 1
+		self.updateAll()
+	def assignClassBonus(self, results, columns, main):
+		increase = results[0][1]
+		index=2
+		if main == 1:
+			varName = "max"
+		else: varName = "subMax"
+		for name in columns:
+			if name == "name" or name == "max":
+				continue
+			if results[0][index] == None:
+				index+=1
+				continue
+			setattr(getattr(self,name),varName,increase)
+			index+=1
+		self.updateAll()
+	def assignRaceStats(self, results, columns):
+		index=0
+		for name in columns:
+			if name =="names":
+				index+=1
+				continue
+			increase = results[0][index]
+			increase = int(increase)
+			currentVar = setattr(getattr(self,name), "base",increase)
+			index += 1
+		self.updateAll()
 class stat:
 	softCapOffset = 40 # 40+base
 	hardCap = 80 # cant go more than this in invested
@@ -101,20 +140,23 @@ class stat:
 		self.customMod = 0
 		self.baseMod = 0
 		self.aptMod = 0
-		self.additonalMod = 0 #classes
+		self.mainClass = 0
+		self.mClassBonus = 0
+		self.sClassBonus = 0
+		self.max = 0
+		self.subMax = 0
 	def updateDisplay(self):
-		realStat = self.base+self.invested+self.customMod+self.baseMod+self.additonalMod+self.aptMod
 		totalStat = self.getTotal()
 		totalSoftCap = self.getTotalSoftCap()
 		if totalSoftCap >= totalStat:
 			self.displayLabel.config(text=f"{totalStat}")
 		else:
-			self.displayLabel.config(text=f"{realStat}({self.getScaled()})")
+			self.displayLabel.config(text=f"{totalStat}({self.getScaled()})")
 		self.checkAdptitude(handler=self.handlerRef)
 		self.handlerRef.player.vitals.updateValues(stats=self.handlerRef)
 		self.handlerRef.player.eleHandler.updateALL()
 	def getTotal(self):
-			return self.base+self.invested+self.customMod+self.baseMod+self.additonalMod+self.aptMod
+			return self.base+self.invested+self.customMod+self.baseMod+self.mClassBonus+self.sClassBonus+self.aptMod+self.mainClass
 	def getTotalSoftCap(self):
 			return stat.softCapOffset + self.base + self.baseMod
 	def getBaseInvested(self):
@@ -191,9 +233,11 @@ class stat:
 		self.plusButton.grid(row=offsetRow, column=offsetColumn+2,sticky=W)
 		self.minusButton.grid(row=offsetRow, column=offsetColumn+3,sticky=W)
 		#stat name / values
+		iconHolder = Label(holder, image=pixel, height=25,width=26,borderwidth=1,relief="solid")
+		# iconHolder.grid(row=offsetRow, column=offsetColumn+6)
 		self.nameLabel = Label(holder, text=name)
 		self.displayLabel = Label(holder, text="0",width=7)
-		self.nameLabel.grid(row=offsetRow,column=offsetColumn,sticky=W)
+		self.nameLabel.grid(row=offsetRow,column=offsetColumn,sticky=W,pady=5)
 		self.displayLabel.grid(row=offsetRow, column=offsetColumn+1,sticky=W)
 		self.nameBalloon = Balloon(holder)
 		self.nameLabel.bind("<Enter>", self.adjustBalloonMsg)
