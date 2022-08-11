@@ -1,0 +1,38 @@
+                Salad
+                    vitality = 3;
+                    break;
+                Fugu
+                    strength = 3;
+                    will = 3;
+                    break;
+                Sushi
+                    strength = 2;
+                    will = 2;
+                    break;
+                Potato & Carrot
+                    skill = 3;
+                    break;
+                Pumpkin Lollipop
+                    celerity = 5;
+                    break;
+                Jammies
+                    celerity = 4;
+                    break;
+                Redpop
+                    celerity = 4;
+                    break;
+                Cocky
+                    celerity = 3;
+                    break;
+                Kat Knip
+                    celerity = 3;
+                    break;
+                Androbar
+                    celerity = 3;
+                    break;
+                Chocolate Bar
+                    celerity = 2;
+                    break;
+                Sweet Bites
+                    celerity = 1;
+                    break;  

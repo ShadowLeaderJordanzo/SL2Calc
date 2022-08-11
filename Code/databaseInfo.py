@@ -19,30 +19,37 @@ class Database:
 		with sqlite3.connect(fileName("Code\\database.db")) as db:
 			self.con = db
 			self.cur = db.cursor()
+			# self.parseTxt(file='Code\\food.txt',type="food")
 			# self.con.close()
+	def makeTable(self):
+		with sqlite3.connect(fileName("Code\\database.db")) as db:
+			cur = db.cursor()
 
-	def parseTxt(self, file):
+
+	def parseTxt(self, file, type):
 		with open(file) as file:
-			currentString = "INSERT INTO classbonus (name, "
-			valueString = "VALUES ('"
-			for line in file:
-				if line.strip() == "break;":
-					valueString = valueString[:-1]
-					currentString = currentString[:-1]
-					valueString+= ")"
-					currentString+= ")"
-					print(currentString + " " + valueString)
-					self.cur.execute(currentString + " " + valueString)
-					self.con.commit()
-					currentString = "INSERT INTO classbonus (name, "
-					valueString = "VALUES ('"
-					continue
-				if line.strip()[-1:] == ";":
-				# next will be the stats, but how do we get them to be the same on the database as here
-					valueString+="'" + line.strip()[-2:-1]+ "'," # the 
-					currentString+=line.strip().lower()[0:-5] + ","
-				else:
-					valueString+=line.strip() + "'," # should be class name
+			with sqlite3.connect(fileName("Code\\database.db")) as db:
+				cur = db.cursor()
+				currentString = f"INSERT INTO {type} (name, "
+				valueString = "VALUES ('"
+				for line in file:
+					if line.strip() == "break;":
+						valueString = valueString[:-1]
+						currentString = currentString[:-1]
+						valueString+= ")"
+						currentString+= ")"
+						print(currentString + " " + valueString)
+						cur.execute(currentString + " " + valueString)
+						db.commit()
+						currentString = f"INSERT INTO {type} (name, "
+						valueString = "VALUES ('"
+						continue
+					if line.strip()[-1:] == ";":
+					# next will be the stats, but how do we get them to be the same on the database as here
+						valueString+="'" + line.strip()[-2:-1]+ "'," # the 
+						currentString+=line.strip().lower()[0:-5] + ","
+					else:
+						valueString+=line.strip() + "'," # should be class name
 
 
 #### Code for parsing classes ####

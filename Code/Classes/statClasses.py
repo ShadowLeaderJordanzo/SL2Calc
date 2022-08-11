@@ -130,6 +130,28 @@ class statHandler: # looks pretty ugly
 			currentVar = setattr(getattr(self,name), "base",increase)
 			index += 1
 		self.updateAll()
+	def resetFoodBonus(self):
+		self.strength.hiddenMod = 0
+		self.will.hiddenMod = 0
+		self.skill.hiddenMod = 0
+		self.celerity.hiddenMod = 0
+		self.defense.hiddenMod = 0
+		self.resistance.hiddenMod = 0
+		self.vitality.hiddenMod = 0
+		self.faith.hiddenMod = 0
+		self.luck.hiddenMod = 0
+		self.guile.hiddenMod = 0
+		self.sanctity.hiddenMod = 0
+	def assignFoodBonus(self, results, columns):
+		self.resetFoodBonus()
+		for index, value in enumerate(columns):
+			if value == "name": continue
+			if results[0][index] == None: continue
+			increase = results[0][index]
+			increase = int(increase)
+			currentVar = setattr(getattr(self,value), "hiddenMod", increase)
+		self.updateAll()
+
 class stat:
 	softCapOffset = 40 # 40+base
 	hardCap = 80 # cant go more than this in invested
@@ -143,6 +165,7 @@ class stat:
 		self.mainClass = 0
 		self.mClassBonus = 0
 		self.sClassBonus = 0
+		self.hiddenMod = 0 
 		self.max = 0
 		self.subMax = 0
 		self.handlerRef = NULL
@@ -161,7 +184,7 @@ class stat:
 	def getTotalNoMods(self):
 		return self.base+self.invested+self.baseMod
 	def getTotal(self):
-			return self.base+self.invested+self.customMod+self.baseMod+self.mClassBonus+self.sClassBonus+self.aptMod+self.mainClass
+			return self.base+self.invested+self.customMod+self.baseMod+self.mClassBonus+self.sClassBonus+self.aptMod+self.mainClass+self.hiddenMod
 	def getTotalSoftCap(self):
 			return stat.softCapOffset + self.base + self.baseMod
 	def getBaseInvested(self):

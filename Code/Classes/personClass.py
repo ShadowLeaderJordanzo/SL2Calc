@@ -75,6 +75,23 @@ class Person:
 		self.atkHandler.updateAll()
 		self.othersHandler.updateAll()
 		self.defHandler.updateAll()
+	def getFoodNames(self):
+		with sqlite3.connect(fileName("Code\\database.db")) as db:
+			cur = db.cursor()
+			cur.execute('SELECT * FROM food')
+			result = []
+			records = cur.fetchall()
+			for row in records:
+				result.append(row[0])
+			return result
+	def foodTest(self, event):
+		print("Do we get here?")
+		with sqlite3.connect(fileName("Code\\database.db")) as db:
+			cur = db.cursor()
+			hm = cur.execute('SELECT * FROM food WHERE name=?', (self.currentFood.get(),))
+			records = cur.fetchall()
+			colName = [tuple[0] for tuple in hm.description]
+			self.statHandler.assignFoodBonus(results=records,columns=colName)
 	def getClassNames(self, Data):
 		Data.cur.execute('SELECT * FROM classes')
 		result = []
@@ -120,32 +137,33 @@ class Person:
 	def changeClass(self,event, main):
 		if main==1: varName = "mainClass"
 		else: varName = "subClass"
-		if main == 1:
-			hm = self.Data.cur.execute('SELECT * FROM classes WHERE name=?', (self.mainClass.get(),))
-			records = self.Data.cur.fetchall()
-			colName = [tuple[0] for tuple in hm.description]
-			self.statHandler.assignClassStats(results=records,columns=colName,main=varName)
-			hm1 = self.Data.cur.execute('SELECT * FROM classbonus WHERE name=?', (self.mainClass.get(),))
-			records1 = self.Data.cur.fetchall()
-			if len(records1)==0:
-				self.mClassBonusValue = StringVar(value=0)
-				self.mainClassBonus.configure(to=0,from_=0,textvariable=self.mClassBonusValue)
-				return
+		with sqlite3.connect(fileName("Code\\database.db")) as db:
+			if main == 1:
+				hm = db.cur.execute('SELECT * FROM classes WHERE name=?', (self.mainClass.get(),))
+				records = self.Data.cur.fetchall()
+				colName = [tuple[0] for tuple in hm.description]
+				self.statHandler.assignClassStats(results=records,columns=colName,main=varName)
+				hm1 = db.cur.execute('SELECT * FROM classbonus WHERE name=?', (self.mainClass.get(),))
+				records1 = db.cur.fetchall()
+				if len(records1)==0:
+					self.mClassBonusValue = StringVar(value=0)
+					self.mainClassBonus.configure(to=0,from_=0,textvariable=self.mClassBonusValue)
+					return
+				else:
+					colName1 = [tuple[0] for tuple in hm1.description]
+					self.statHandler.assignClassBonus(results=records1, columns=colName1,main=main)
+					self.updateClassBonuses()
 			else:
-				colName1 = [tuple[0] for tuple in hm1.description]
-				self.statHandler.assignClassBonus(results=records1, columns=colName1,main=main)
-				self.updateClassBonuses()
-		else:
-			hm1 = self.Data.cur.execute('SELECT * FROM classbonus WHERE name=?', (self.subClass.get(),))
-			records1 = self.Data.cur.fetchall()
-			if len(records1)==0:
-				self.sClassBonusValue = StringVar(value=0)
-				self.subClassBonus.configure(to=0,from_=0,textvariable=self.sClassBonusValue)
-				return
-			else:
-				colName1 = [tuple[0] for tuple in hm1.description]
-				self.statHandler.assignClassBonus(results=records1, columns=colName1,main=main)
-				self.updateClassBonuses()
+				hm1 = db.cur.execute('SELECT * FROM classbonus WHERE name=?', (self.subClass.get(),))
+				records1 = db.cur.fetchall()
+				if len(records1)==0:
+					self.sClassBonusValue = StringVar(value=0)
+					self.subClassBonus.configure(to=0,from_=0,textvariable=self.sClassBonusValue)
+					return
+				else:
+					colName1 = [tuple[0] for tuple in hm1.description]
+					self.statHandler.assignClassBonus(results=records1, columns=colName1,main=main)
+					self.updateClassBonuses()
 	def updateClassBonuses(self):
 		value = int(self.mClassBonusValue.get())
 		classBonuses = self.getClassBonusList(main=1)
@@ -173,21 +191,23 @@ class Person:
 		raceLabel = Label(infoFrame, text="Race:")
 		raceLabel.grid(row=0,column=0,sticky=W)
 		records1 = self.getRaceNames(Data=dataBase)
-		self.currentRace = StringVar(value='_HUMANS_')
+		self.currentRace = StringVar(value='Pick a Race')
 		self.raceComboBox = AutocompleteCombobox(infoFrame, textvariable=self.currentRace,values=records1,width=15)
 		self.raceComboBox.set_completion_list(records1)
 		self.raceComboBox.grid(row=0,column=1,sticky=W)
 		self.raceComboBox.bind('<<ComboboxSelected>>', self.changeRace)
 		foodLabel = Label(infoFrame, text="Food:")
 		foodLabel.grid(row=1,column=0,sticky=W)
-		self.currentFood = StringVar(value='_STR_')
-		self.foodComboBox = AutocompleteCombobox(infoFrame, textvariable=self.currentFood,values=['Salad','Fugu'],width=15)
-		self.foodComboBox.set_completion_list(['Salad','Fugu'])
+		records2 = self.getFoodNames()
+		self.currentFood = StringVar(value='Pick a Food')
+		self.foodComboBox = AutocompleteCombobox(infoFrame, textvariable=self.currentFood,values=records2,width=15)
+		self.foodComboBox.set_completion_list(records2)
 		self.foodComboBox.grid(row=1,column=1,sticky=W)
+		self.foodComboBox.bind('<<ComboboxSelected>>', self.foodTest)
   
 		mClassLabel = Label(infoFrame, text="Main Class:")
 		mClassLabel.grid(row=0,column=2,sticky=W)
-		self.mainClass = StringVar(value=' ')
+		self.mainClass = StringVar(value='Pick a Class')
 		records = self.getClassNames(Data=dataBase)
   
 		self.mainClassComboBox = AutocompleteCombobox(infoFrame, textvariable=self.mainClass,values=records,width=18)
@@ -202,7 +222,7 @@ class Person:
   
 		sClassLabel = Label(infoFrame, text="Sub Class:")
 		sClassLabel.grid(row=1,column=2,sticky=W)
-		self.subClass = StringVar(value=' ')
+		self.subClass = StringVar(value='Pick a Sub Class')
   
 		self.subClassComboBox = AutocompleteCombobox(infoFrame, textvariable=self.subClass,values=records,width=18)
 		self.subClassComboBox.set_completion_list(records)

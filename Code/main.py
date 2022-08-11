@@ -6,7 +6,7 @@ from Classes.statClasses import *
 
 from databaseInfo import *
 test = 1
-currentVersion = "0.1"
+currentVersion = "0.1a"
 Data = Database()
 root = Tk()
 root.title('Sigrogana Legend 2 Calculator')
