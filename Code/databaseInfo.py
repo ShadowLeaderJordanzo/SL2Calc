@@ -1,13 +1,27 @@
 from asyncio.windows_events import NULL
 import sqlite3
+import os
+import sys
+import os
 
-
+def fileName(text):
+	""" Get absolute path to resource, works for dev and for PyInstaller """
+	try:
+		# PyInstaller creates a temp folder and stores path in _MEIPASS
+		basePath = sys._MEIPASS
+	except Exception:
+		basePath = os.path.abspath(".")
+	with open('readme.txt', 'a') as f:
+		f.write(os.path.join(basePath, text))
+	return os.path.join(basePath, text)
 class Database:
 
 	def __init__(self):
-		self.con = sqlite3.connect('Code/database.db')
-		self.cur = self.con.cursor()
-		# con.close()
+		print("hm")		
+		with sqlite3.connect(fileName("Code\\database.db")) as db:
+			self.con = db
+			self.cur = db.cursor()
+			# self.con.close()
 
 	def parseTxt(self, file):
 		with open(file) as file:

@@ -45,9 +45,9 @@ class statHandler: # looks pretty ugly
 					namesake = namesake + arg[1:]
 					getattr(self, arg).addStats(offsetRow=index, offsetColumn=0, pixel=pixel, name=namesake,handler=self,holder=self.statFrame)
 					getattr(self, arg).addWidgets(parent=self.statFrame, offsetRow=index, offsetColumn=0)
+					getattr(self, arg).handlerRef = self
 			for columns in range(self.statFrame.grid_size()[0]):
 				self.statFrame.columnconfigure(columns,weight=1)
-			self.strength.handlerRef = self
 		self.player = person
 	def setParents(self):
 		self.strength.handlerRef = self
@@ -145,6 +145,7 @@ class stat:
 		self.sClassBonus = 0
 		self.max = 0
 		self.subMax = 0
+		self.handlerRef = NULL
 	def updateDisplay(self):
 		totalStat = self.getTotal()
 		totalSoftCap = self.getTotalSoftCap()
@@ -154,7 +155,11 @@ class stat:
 			self.displayLabel.config(text=f"{totalStat}({self.getScaled()})")
 		self.checkAdptitude(handler=self.handlerRef)
 		self.handlerRef.player.vitals.updateValues(stats=self.handlerRef)
-		self.handlerRef.player.eleHandler.updateALL()
+		if self.name == "sanctity":
+			self.handlerRef.player.eleHandler.updateValue(stat=self)
+		self.handlerRef.player.updateAll()
+	def getTotalNoMods(self):
+		return self.base+self.invested+self.baseMod
 	def getTotal(self):
 			return self.base+self.invested+self.customMod+self.baseMod+self.mClassBonus+self.sClassBonus+self.aptMod+self.mainClass
 	def getTotalSoftCap(self):
@@ -202,7 +207,7 @@ class stat:
 		if num == 0: num = 1
 		if handler.reducePoints(num=num) == 1:
 			if hardCap == 1:
-				if currentValue+num > 80: return
+				if self.invested+num > 80: return
 			setattr(self, choice, self.invested + num)
 			self.updateDisplay()
 			handler.pointsRemaining.config(text=f"{statHandler.points} Points Remaining")
@@ -221,8 +226,8 @@ class stat:
 		setattr(self, "customMod", value)
 		self.updateDisplay()
 		# self.handlerRef.updateAll(self=self.handlerRef)
-	def adjustBalloonMsg(self,e):
-		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
+	# def adjustBalloonMsg(self,e):
+	# 	self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
 	def addStats(self, offsetRow, offsetColumn, pixel, name,handler,holder):
 		attr_name = 'invested'
 		self.plusButton = Button(holder, text="+",command=partial(self.add,attr_name, 1,1,handler),
@@ -233,15 +238,14 @@ class stat:
 		self.plusButton.grid(row=offsetRow, column=offsetColumn+2,sticky=W)
 		self.minusButton.grid(row=offsetRow, column=offsetColumn+3,sticky=W)
 		#stat name / values
-		iconHolder = Label(holder, image=pixel, height=25,width=26,borderwidth=1,relief="solid")
 		# iconHolder.grid(row=offsetRow, column=offsetColumn+6)
 		self.nameLabel = Label(holder, text=name)
 		self.displayLabel = Label(holder, text="0",width=7)
 		self.nameLabel.grid(row=offsetRow,column=offsetColumn,sticky=W,pady=5)
 		self.displayLabel.grid(row=offsetRow, column=offsetColumn+1,sticky=W)
-		self.nameBalloon = Balloon(holder)
-		self.nameLabel.bind("<Enter>", self.adjustBalloonMsg)
-		self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
+		# self.nameBalloon = Balloon(holder)
+		# self.nameLabel.bind("<Enter>", self.adjustBalloonMsg)
+		# self.nameBalloon.bind_widget(self.nameLabel, balloonmsg=self.getToolTip())
 	def addWidgets(self,parent, offsetRow, offsetColumn):
 		#Mod names
 		self.customModValue = StringVar(value=0)

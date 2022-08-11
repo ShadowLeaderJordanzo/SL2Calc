@@ -5,9 +5,11 @@ from Classes.tkentrycomplete import *
 from Classes.classesClass import *
 from Classes.vitals import Vital
 from Classes.eleHandler import EleHandler
+from Classes.atkHandler import AtkHandler
+from Classes.defHandler import DefHandler
+from Classes.otherHandler import OtherHandler
 from databaseInfo import *
 from Classes.statClasses import *
-
 
 def astroPopUp():
 	astro = Toplevel()
@@ -43,23 +45,36 @@ class Person:
 		self.superFrame.grid(row=6,column=0,sticky=W,columnspan=12)
 		self.superFrame.columnconfigure(0,weight=1)
 		self.superFrame.columnconfigure(1,weight=1)
+		self.infoFrame = ttk.Frame(root)
+		self.infoFrame.grid(row=6,column=14,sticky=W)
 		self.Data = dataBase
-		self.vitals = Vital(parent=root)
-		self.eleHandler = EleHandler(parent=self.superFrame,pixel=pixel,person=self,root=root) # ELE ATKS / ELE DEF
-		self.atkHandler = NULL # hit/crit/status infliction/flanking 
-		self.defHandler = NULL # Phys% Mag Def % Evade crit evade Status Resist
-		self.othersHandler = NULL # youkai cap, skill pool, init, bw / encumbrance
 		self.statHandler = statHandler( stats = [stat(base=0,name="strength"),stat(base=0,name="will"),stat(base=0,name="skill"),
 			stat(base=0,name="celerity"),stat(base=0,name="defense"),stat(base=0,name="resistance"),stat(base=0,name="vitality"),
 			stat(base=0,name="faith"),stat(base=0,name="luck"),stat(base=0,name="guile"),stat(base=0,name="sanctity"),stat(base=0,name="aptitude")],
 			parent=self.superFrame, pixel=pixel, person=self,root=root) # stats
+		self.vitals = Vital(parent=root,person=self)
+		self.eleHandler = EleHandler(parent=self.superFrame,pixel=pixel,person=self,root=root) # ELE ATKS / ELE DEF
+		self.atkHandler = AtkHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # hit/crit/status infliction/flanking 
+		self.defHandler = DefHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # Phys% Mag Def % Evade crit evade Status Resist
+		self.othersHandler = OtherHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # youkai cap, skill pool, init, bw / encumbrance
 		self.modHandler = NULL # stamps/LE, additonal things like check boxes etc
+		textFrame = ttk.Frame(root)
+		textFrame.grid(row=5,column=14,sticky=W)
+		Label(textFrame, text=" ",width=8).grid(row=0,column=0)
+		Label(textFrame, text=" ",width=4).grid(row=0,column=1)
+		Label(textFrame, text="Mods",width=8).grid(row=0,column=2)
+		Label(textFrame, text="Torso").grid(row=0,column=3)
 		self.trait = "None"
 		self.race = "None"
 		self.mainClass = "None"
 		self.subClass = "None"
 		self.statHandler.setParents()
 		self.makeDisplay(root=root,dataBase=dataBase)
+	def updateAll(self):
+		self.eleHandler.updateAll()
+		self.atkHandler.updateAll()
+		self.othersHandler.updateAll()
+		self.defHandler.updateAll()
 	def getClassNames(self, Data):
 		Data.cur.execute('SELECT * FROM classes')
 		result = []
@@ -89,11 +104,13 @@ class Person:
 			index+=1
 		return results
 	def getRaceNames(self, Data):
-		Data.cur.execute('SELECT * FROM races')
-		result = []
-		records = Data.cur.fetchall()
-		for row in records:
-			result.append(row[0])
+		result =[]		
+		with sqlite3.connect(fileName("Code\\database.db")) as db:
+			cur = db.cursor()
+			cur.execute('SELECT * FROM races')
+			records = cur.fetchall()
+			for row in records:
+				result.append(row[0])
 		return result
 	def changeRace(self,event):
 		hm = self.Data.cur.execute('SELECT * FROM races WHERE names=?', (self.currentRace.get(),))
