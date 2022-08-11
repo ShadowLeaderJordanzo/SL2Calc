@@ -11,8 +11,6 @@ def fileName(text):
 		basePath = sys._MEIPASS
 	except Exception:
 		basePath = os.path.abspath(".")
-	with open('readme.txt', 'a') as f:
-		f.write(os.path.join(basePath, text))
 	return os.path.join(basePath, text)
 class Database:
 
