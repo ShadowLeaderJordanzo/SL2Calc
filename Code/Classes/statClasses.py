@@ -210,6 +210,7 @@ class stat:
 		if self.name == "aptitude":
 			totalStat = self.getTotal()
 			totalSoftCap = self.getTotalSoftCap()
+			print(totalSoftCap)
 			if totalSoftCap >= totalStat:
 				if totalStat == 0: return
 				if totalStat%6 == 0:

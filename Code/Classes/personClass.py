@@ -139,12 +139,13 @@ class Person:
 		else: varName = "subClass"
 		with sqlite3.connect(fileName("Code\\database.db")) as db:
 			if main == 1:
-				hm = db.cur.execute('SELECT * FROM classes WHERE name=?', (self.mainClass.get(),))
-				records = self.Data.cur.fetchall()
+				cur = db.cursor()
+				hm = cur.execute('SELECT * FROM classes WHERE name=?', (self.mainClass.get(),))
+				records = cur.fetchall()
 				colName = [tuple[0] for tuple in hm.description]
 				self.statHandler.assignClassStats(results=records,columns=colName,main=varName)
-				hm1 = db.cur.execute('SELECT * FROM classbonus WHERE name=?', (self.mainClass.get(),))
-				records1 = db.cur.fetchall()
+				hm1 = cur.execute('SELECT * FROM classbonus WHERE name=?', (self.mainClass.get(),))
+				records1 = cur.fetchall()
 				if len(records1)==0:
 					self.mClassBonusValue = StringVar(value=0)
 					self.mainClassBonus.configure(to=0,from_=0,textvariable=self.mClassBonusValue)
@@ -154,8 +155,9 @@ class Person:
 					self.statHandler.assignClassBonus(results=records1, columns=colName1,main=main)
 					self.updateClassBonuses()
 			else:
-				hm1 = db.cur.execute('SELECT * FROM classbonus WHERE name=?', (self.subClass.get(),))
-				records1 = db.cur.fetchall()
+				cur = db.cursor()
+				hm1 = cur.execute('SELECT * FROM classbonus WHERE name=?', (self.subClass.get(),))
+				records1 = cur.fetchall()
 				if len(records1)==0:
 					self.sClassBonusValue = StringVar(value=0)
 					self.subClassBonus.configure(to=0,from_=0,textvariable=self.sClassBonusValue)
