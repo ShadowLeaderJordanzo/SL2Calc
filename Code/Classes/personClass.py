@@ -8,6 +8,7 @@ from Classes.eleHandler import EleHandler
 from Classes.atkHandler import AtkHandler
 from Classes.defHandler import DefHandler
 from Classes.otherHandler import OtherHandler
+from Classes.LegendExtendButtons import ModHandler
 from databaseInfo import *
 from Classes.statClasses import *
 
@@ -17,11 +18,11 @@ def astroPopUp():
 	astro.resizable=(0,0)
 	astro.wm_maxsize(width=307,height=313)
 	astro.wm_minsize(width=307,height=313)
-	starSign = PhotoImage(file = "Images/Starsign.png")
+	starSign = PhotoImage(file = fileName('Images\\Starsign.png'))
 	astroCanvas = Canvas(astro, width=307,height=313)
 	astroCanvas.pack(fill="both",expand= TRUE)
 	astroCanvas.create_image(0,0,image=starSign, anchor="nw")
-	astro.mainloop()
+	astro.mainloop()			
 class ClassBonuses:
 	def __init__(self, name, dataBase): # probably sql to handle database of info 
 		dataBase.cur.execute('SELECT * FROM classbonus WHERE name=?', (name,))
@@ -42,11 +43,9 @@ class Person:
 	# so if its class variable its essentially shared across all classes, but more like it exists as its own instance shared?? 
 	def __init__(self, root, pixel,dataBase):
 		self.superFrame = ttk.Frame(root)
-		self.superFrame.grid(row=6,column=0,sticky=W,columnspan=12)
-		self.superFrame.columnconfigure(0,weight=1)
-		self.superFrame.columnconfigure(1,weight=1)
+		self.superFrame.grid(row=6,column=0,sticky=W)
 		self.infoFrame = ttk.Frame(root)
-		self.infoFrame.grid(row=6,column=14,sticky=W)
+		self.infoFrame.grid(row=6,column=2,sticky=W)
 		self.Data = dataBase
 		self.statHandler = statHandler( stats = [stat(base=0,name="strength"),stat(base=0,name="will"),stat(base=0,name="skill"),
 			stat(base=0,name="celerity"),stat(base=0,name="defense"),stat(base=0,name="resistance"),stat(base=0,name="vitality"),
@@ -57,9 +56,17 @@ class Person:
 		self.atkHandler = AtkHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # hit/crit/status infliction/flanking 
 		self.defHandler = DefHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # Phys% Mag Def % Evade crit evade Status Resist
 		self.othersHandler = OtherHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # youkai cap, skill pool, init, bw / encumbrance
-		self.modHandler = NULL # stamps/LE, additonal things like check boxes etc
+		self.superOptions = ttk.Frame(root)
+		self.superOptions.grid(row=6,column=3,columnspan=3,rowspan=10)
+  
+		self.leFrame = ttk.Frame(self.superOptions)
+		self.leFrame.grid(row=0,column=0,sticky=W)
+		self.optionsFrame = ttk.Frame(self.superOptions)
+		self.optionsFrame.grid(row=1,column=0,sticky=W)
+		self.modHandler = ModHandler(root=self.leFrame,char=self) # stamps/LE, additonal things like check boxes etc
+		# self.thing = LegendExtend(root=root, relatedstat="celerity",row=5,column=15,name="RabeUr")
 		textFrame = ttk.Frame(root)
-		textFrame.grid(row=5,column=14,sticky=W)
+		textFrame.grid(row=5,column=2,sticky=W)
 		Label(textFrame, text=" ",width=8).grid(row=0,column=0)
 		Label(textFrame, text=" ",width=4).grid(row=0,column=1)
 		Label(textFrame, text="Mods",width=8).grid(row=0,column=2)
@@ -70,7 +77,14 @@ class Person:
 		self.subClass = "None"
 		self.statHandler.setParents()
 		self.makeDisplay(root=root,dataBase=dataBase)
+		for columns in range(self.superOptions.grid_size()[0]):
+			self.superOptions.columnconfigure(columns,weight=1)
+		for columns in range(self.superFrame.grid_size()[0]):
+			self.superFrame.columnconfigure(columns,weight=1)
+		for columns in range(textFrame.grid_size()[0]):
+			textFrame.columnconfigure(columns,weight=1)
 	def updateAll(self):
+		self.vitals.updateDisplay()
 		self.eleHandler.updateAll()
 		self.atkHandler.updateAll()
 		self.othersHandler.updateAll()
@@ -85,13 +99,16 @@ class Person:
 				result.append(row[0])
 			return result
 	def foodTest(self, event):
-		print("Do we get here?")
 		with sqlite3.connect(fileName("Code\\database.db")) as db:
 			cur = db.cursor()
 			hm = cur.execute('SELECT * FROM food WHERE name=?', (self.currentFood.get(),))
 			records = cur.fetchall()
 			colName = [tuple[0] for tuple in hm.description]
-			self.statHandler.assignFoodBonus(results=records,columns=colName)
+			self.statHandler.assignBonus(results=records,columns=colName)
+			hm = cur.execute('SELECT * FROM food WHERE name=?', (self.prevFood,))
+			records1 = cur.fetchall()
+			self.statHandler.resetBonus(results=records1,columns=colName)
+		self.prevFood = self.currentFood.get()
 	def getClassNames(self, Data):
 		Data.cur.execute('SELECT * FROM classes')
 		result = []
@@ -183,6 +200,23 @@ class Person:
 				for name in classBonuses[1:]:
 					setattr(getattr(self.statHandler, name), "sClassBonus", value)
 		self.statHandler.updateAll()
+	def updateRisingGame(self, num): # subtract by prev, increase by new
+		self.statHandler.strength.risingGame(self.risingGameFormerValue, num)
+		self.statHandler.skill.risingGame(self.risingGameFormerValue, num)
+		self.statHandler.celerity.risingGame(self.risingGameFormerValue, num)
+		self.statHandler.will.risingGame(self.risingGameFormerValue, num)
+		self.statHandler.resistance.risingGame(self.risingGameFormerValue, num)
+		self.statHandler.luck.risingGame(self.risingGameFormerValue, num)
+		self.risingGameFormerValue = num
+	def updatePainTolerance(self, num): # subtract by prev, increase by new
+		self.vitals.painTolerance(self.painToleranceFormerValue*8, num*8)
+		self.painToleranceFormerValue = num
+	def updateDragonKing(self, num):
+		self.statHandler.strength.dragonKing = num
+		self.updateAll()
+	def updateAfflictedSpectre(self, num): 
+		self.vitals.afflictedSpectre = num
+		self.updateAll()
 	def makeDisplay(self,root,dataBase):
 		infoFrame = Frame(root)
 		infoFrame.grid(row=3,column=0,sticky=W,columnspan=4)
@@ -202,6 +236,7 @@ class Person:
 		foodLabel.grid(row=1,column=0,sticky=W)
 		records2 = self.getFoodNames()
 		self.currentFood = StringVar(value='Pick a Food')
+		self.prevFood = "None"
 		self.foodComboBox = AutocompleteCombobox(infoFrame, textvariable=self.currentFood,values=records2,width=15)
 		self.foodComboBox.set_completion_list(records2)
 		self.foodComboBox.grid(row=1,column=1,sticky=W)
@@ -211,7 +246,7 @@ class Person:
 		mClassLabel.grid(row=0,column=2,sticky=W)
 		self.mainClass = StringVar(value='Pick a Class')
 		records = self.getClassNames(Data=dataBase)
-  
+   
 		self.mainClassComboBox = AutocompleteCombobox(infoFrame, textvariable=self.mainClass,values=records,width=18)
 		self.mainClassComboBox.set_completion_list(records)
 		self.mainClassComboBox.grid(row=0,column=3,sticky=W)  
@@ -234,3 +269,56 @@ class Person:
 		self.sClassBonusValue = StringVar(value=0)
 		self.subClassBonus = Spinbox(infoFrame, from_=0,to=0,increment=1,format='%10.0f',width=6, command=self.updateClassBonuses,textvariable=self.sClassBonusValue)
 		self.subClassBonus.grid(row=1,column=5,sticky=W)
+		# just make a damn function dude
+  
+		Label(infoFrame,text="Rising Game: " ).grid(row=0,column=6,sticky=W)
+		self.risingGameValue = IntVar(value=0)
+		self.risingGameFormerValue = 0 
+		self.risingGame = Spinbox(infoFrame, from_=0, to=6, increment=1,format='%10.0f',width=6, command=lambda:self.updateRisingGame(self.risingGameValue.get()),textvariable=self.risingGameValue, wrap=False)
+		self.risingGame.grid(row=0,column=7,sticky=W)
+  
+		Label(infoFrame,text="Pain Tolerance: " ).grid(row=1,column=6,sticky=W)
+		self.painToleranceValue = IntVar(value=0)
+		self.painToleranceFormerValue = 0 
+		self.painTolerance = Spinbox(infoFrame, from_=0, to=6, increment=1,format='%10.0f',width=6, command=lambda:self.updatePainTolerance(self.painToleranceValue.get()),textvariable=self.painToleranceValue, wrap=False)
+		self.painTolerance.grid(row=1,column=7,sticky=W)
+  
+		Label(infoFrame,text="Dragon King Piece: " ).grid(row=0,column=8,sticky=W)
+		self.dragonKingValue = IntVar(value=0)
+		self.dragonKing = Spinbox(infoFrame, from_=0, to=3, increment=1,format='%10.0f',width=6, command=lambda:self.updateDragonKing(self.dragonKingValue.get()),textvariable=self.dragonKingValue, wrap=False)
+		self.dragonKing.grid(row=0,column=9,sticky=W)
+  
+		Label(infoFrame,text="Afflicted Spectre: " ).grid(row=1,column=8,sticky=W)
+		self.afflictedSpectreValue = IntVar(value=0)
+		self.afflictedSpectre = Spinbox(infoFrame, from_=0, to=10, increment=1,format='%10.0f',width=6, command=lambda:self.updateAfflictedSpectre(self.afflictedSpectreValue.get()),textvariable=self.afflictedSpectreValue, wrap=False)
+		self.afflictedSpectre.grid(row=1,column=9,sticky=W)
+  
+  
+		Label(infoFrame,text="History:").grid(row=0,column=10,sticky=W)
+		records1 = self.getHistory()
+		self.currentTalent = StringVar(value='Pick a History')
+		self.prevTalent = "None"
+		self.talentComboBox = AutocompleteCombobox(infoFrame, textvariable=self.currentTalent,values=records1,width=23)
+		self.talentComboBox.set_completion_list(records1)
+		self.talentComboBox.grid(row=0,column=11,sticky=W)
+		self.talentComboBox.bind('<<ComboboxSelected>>', self.changeTalent)
+	def getHistory(self):
+		result =[]		
+		with sqlite3.connect(fileName("Code\\database.db")) as db:
+			cur = db.cursor()
+			cur.execute('SELECT * FROM talents')
+			records = cur.fetchall()
+			for row in records:
+				result.append(row[0])
+		return result
+	def changeTalent(self, event):
+		with sqlite3.connect(fileName("Code\\database.db")) as db:
+			cur = db.cursor()
+			hm = cur.execute('SELECT * FROM talents WHERE name=?', (self.currentTalent.get(),))
+			records = cur.fetchall()
+			colName = [tuple[0] for tuple in hm.description]
+			self.statHandler.assignBonus(results=records,columns=colName)
+			hm = cur.execute('SELECT * FROM talents WHERE name=?', (self.prevTalent,))
+			records1 = cur.fetchall()
+			self.statHandler.resetBonus(results=records1,columns=colName)
+		self.prevTalent = self.currentTalent.get()

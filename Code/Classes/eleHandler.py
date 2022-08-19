@@ -13,18 +13,18 @@ class EleHandler:
 		self.eleRES = {"fire":0, "ice":0,"wind":0,"earth":0,"dark":0,"water":0,"light":0,"lightning":0, "acid":0,"sound":0}
 		self.eleFrame = ttk.Frame(parent)
 		self.eleFrame.grid(row=0,column=1,sticky=W)
-		textFrame = ttk.Frame(root)
-		textFrame.grid(row=5,column=1,sticky=W)
-		self.text = Label(textFrame, text="EleATK")
-		self.text.grid(row=0,column=0)
+		self.text = Label(person.statHandler.textFrame, text="EleATK")
+		self.text.grid(row=0,column=4,sticky=W)
 		for key, value in self.eleATK.items():
 			self.eleATK[key] = eleStat(base=0,name=key)
 		for key, value  in self.eleRES.items():
 			self.eleRES[key] = trackerStat(base=0,name=key)
-		Label(self.eleFrame, text="",image=pixel,height=26).grid(row=11,column=0)
+		Label(self.eleFrame, text="",image=pixel,height=26).grid(row=11,column=0,sticky=W)
 		self.generateEleAtks(pixel = pixel)
 		self.generateEleDefs(pixel=pixel)
 		self.thePlayer = person
+		for columns in range(self.eleFrame.grid_size()[0]):
+			self.eleFrame.columnconfigure(columns,weight=1)
 	def getBonus(self, element):
 		stats = self.thePlayer.statHandler
 		if self.lumEleValue != 1: # we will handle the handling of lum ele later
@@ -66,11 +66,11 @@ class EleHandler:
 			self.eleATK[key].handlerRef = self
 			if index==1:
 				blank = Label(self.eleFrame, text="Luminary Element")
-				blank.grid(row=index, column=2)
+				blank.grid(row=index, column=2,sticky=W)
 				self.lumEleValue = IntVar(value=0)
 				self.lumEle = Checkbutton(self.eleFrame,variable=self.lumEleValue)
-				self.lumEle.grid(row=index, column=1)
-				Label(self.eleFrame, image=pixel,height=26).grid(row=index,column=0)
+				self.lumEle.grid(row=index, column=1,sticky=W)
+				Label(self.eleFrame, image=pixel,height=26).grid(row=index,column=0,sticky=W)
 				self.eleATK[key].addWidgets(parent=self.eleFrame,offsetRow=2,offsetColumn=0)
 				self.eleATK[key].addStats(holder=self.eleFrame,offsetRow=2,offsetColumn=0,pixel=pixel,name=key,stat=statHandler.sloppyList[2],handler=self)
 				index+=2
@@ -78,13 +78,14 @@ class EleHandler:
 				self.eleATK[key].addWidgets(parent=self.eleFrame,offsetRow=index,offsetColumn=0)
 				self.eleATK[key].addStats(holder=self.eleFrame,offsetRow=index,offsetColumn=0,pixel=pixel,name=key,stat=statHandler.sloppyList[index],handler=self)
 				index+=1
-		Label(self.eleFrame, text="",image=pixel,height=26).grid(row=11,column=0)
+		Label(self.eleFrame, text="",image=pixel,height=26).grid(row=11,column=0,sticky=W)
+
 	def generateEleDefs(self,pixel):
 		index=0
 		for key, value  in self.eleRES.items():
 			if index==1:
 				blank = Label(self.eleFrame, text=" ")
-				blank.grid(row=index, column=3)
+				blank.grid(row=index, column=3,sticky=W)
 				self.eleRES[key].addRes(holder=self.eleFrame,offsetRow=index+1,offsetColumn=3,stat = self.eleRES[key])
 				self.eleRES[key].addWidgets(parent=self.eleFrame, offsetRow=index+1,offsetColumn=3)
 				index+=2
@@ -115,15 +116,15 @@ class eleStat(stat):
 		imagePath = fileName(imagePath)
 		self.theIcon = ImageTk.PhotoImage(Image.open(imagePath))
 		self.Icon = Label(holder, image=self.theIcon,height=26)
-		self.Icon.grid(row=offsetRow, column=offsetColumn)
+		self.Icon.grid(row=offsetRow, column=offsetColumn,sticky=W)
 		self.display = Label(holder, text="0",width=4)
-		self.display.grid(row=offsetRow,column=offsetColumn+1)
+		self.display.grid(row=offsetRow,column=offsetColumn+1,sticky=W)
 		self.refStat = stat
 
 	def addWidgets(self, parent, offsetRow, offsetColumn):
 		self.customModValue = StringVar(value=0)
 		self.customMods = Spinbox(parent, from_=-100,to=100,increment=1,format='%10.0f',width=6,wrap=True,justify=LEFT,
                             command=self.update_modifiers,textvariable=self.customModValue)
-		self.customMods.grid(row=offsetRow,column=offsetColumn+2)
+		self.customMods.grid(row=offsetRow,column=offsetColumn+2,sticky=W)
 		self.customMods.configure(justify=LEFT)
 		self.customMods.xview_moveto(1)

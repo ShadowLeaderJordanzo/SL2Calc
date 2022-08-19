@@ -19,8 +19,8 @@ class Database:
 		with sqlite3.connect(fileName("Code\\database.db")) as db:
 			self.con = db
 			self.cur = db.cursor()
-			# self.parseTxt(file='Code\\food.txt',type="food")
-			# self.con.close()
+			#self.cur.execute("""INSERT INTO talents Values('None', NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL)""")
+			# self.parseTxt(file='Code\\Talents.txt',type="talents")
 	def makeTable(self):
 		with sqlite3.connect(fileName("Code\\database.db")) as db:
 			cur = db.cursor()

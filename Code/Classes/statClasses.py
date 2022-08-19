@@ -23,18 +23,18 @@ class statHandler: # looks pretty ugly
 			self.sanctity = stats[10]
 			self.aptitude = stats[11]
 			# maybe just like a frame function, no matter what i do i seem to bloat code with the frame - > label -> grid movement and it makes a function look ugly
-			textFrame = ttk.Frame(root)
-			textFrame.grid(row=5,column=0,sticky=W)
-			self.pointsRemaining = Label(textFrame, text=f"{statHandler.points} Points Remaining",)
+			self.textFrame = ttk.Frame(root)
+			self.textFrame.grid(row=5,column=0,sticky=W)
+			self.pointsRemaining = Label(self.textFrame, text=f"{statHandler.points} Points Remaining",)
 			self.pointsRemaining.grid(row=0,column=0,sticky=W)
-			displayRand = Label(textFrame, text="",padx=13)
+			displayRand = Label(self.textFrame, text="",padx=13)
 			displayRand.grid(row=0,column=1)
-			self.modsDisplay1 = Label(textFrame, text="Custom Mod",padx=5)
+			self.modsDisplay1 = Label(self.textFrame, text="Custom Mod",padx=5)
 			self.modsDisplay1.grid(row=0,column=2,sticky=W)
-			self.modsDisplay2 = Label(textFrame, text="Base Mod",padx=0)
+			self.modsDisplay2 = Label(self.textFrame, text="Base Mod",padx=0)
 			self.modsDisplay2.grid(row=0,column=3,sticky=W)
-			for columns in range(textFrame.grid_size()[0]):
-				textFrame.columnconfigure(columns,weight=1)
+			for columns in range(self.textFrame.grid_size()[0]):
+				self.textFrame.columnconfigure(columns,weight=1)
 			self.statFrame = ttk.Frame(parent)
 			self.statFrame.grid(row=0,column=0,sticky=W)
 			index = 5
@@ -130,26 +130,24 @@ class statHandler: # looks pretty ugly
 			currentVar = setattr(getattr(self,name), "base",increase)
 			index += 1
 		self.updateAll()
-	def resetFoodBonus(self):
-		self.strength.hiddenMod = 0
-		self.will.hiddenMod = 0
-		self.skill.hiddenMod = 0
-		self.celerity.hiddenMod = 0
-		self.defense.hiddenMod = 0
-		self.resistance.hiddenMod = 0
-		self.vitality.hiddenMod = 0
-		self.faith.hiddenMod = 0
-		self.luck.hiddenMod = 0
-		self.guile.hiddenMod = 0
-		self.sanctity.hiddenMod = 0
-	def assignFoodBonus(self, results, columns):
-		self.resetFoodBonus()
+	def resetBonus(self, results, columns):
 		for index, value in enumerate(columns):
 			if value == "name": continue
 			if results[0][index] == None: continue
 			increase = results[0][index]
 			increase = int(increase)
-			currentVar = setattr(getattr(self,value), "hiddenMod", increase)
+			stat = getattr(self,value)
+			if stat.hiddenMod == 0: continue
+			setattr(stat, "hiddenMod", (getattr(stat, "hiddenMod") - increase))
+		self.updateAll()
+	def assignBonus(self, results, columns):
+		for index, value in enumerate(columns):
+			if value == "name": continue
+			if results[0][index] == None: continue
+			increase = results[0][index]
+			increase = int(increase)
+			stat = getattr(self,value)
+			setattr(stat, "hiddenMod", (getattr(stat, "hiddenMod") + increase))
 		self.updateAll()
 
 class stat:
@@ -166,9 +164,17 @@ class stat:
 		self.mClassBonus = 0
 		self.sClassBonus = 0
 		self.hiddenMod = 0 
+		self.prevHidden = 0
+		self.hiddenBase = 0
 		self.max = 0
 		self.subMax = 0
 		self.handlerRef = NULL
+		self.dragonKing = 0
+	def risingGame(self, prevnum, nextnum):
+		self.hiddenMod-=prevnum
+		self.hiddenMod+=nextnum
+		self.updateDisplay()
+
 	def updateDisplay(self):
 		totalStat = self.getTotal()
 		totalSoftCap = self.getTotalSoftCap()
@@ -182,15 +188,16 @@ class stat:
 			self.handlerRef.player.eleHandler.updateValue(stat=self)
 		self.handlerRef.player.updateAll()
 	def getTotalNoMods(self):
-		return self.base+self.invested+self.baseMod
+		return self.base+self.invested+self.baseMod+self.hiddenBase
 	def getTotal(self):
-			return self.base+self.invested+self.customMod+self.baseMod+self.mClassBonus+self.sClassBonus+self.aptMod+self.mainClass+self.hiddenMod
+			current = self.base+self.invested+self.customMod+self.baseMod+self.hiddenBase+self.mClassBonus+self.sClassBonus+self.aptMod+self.mainClass+self.hiddenMod
+			return int(current + (current * (5*self.dragonKing)/100))
 	def getTotalSoftCap(self):
-			return stat.softCapOffset + self.base + self.baseMod
+			return stat.softCapOffset + self.base + self.baseMod + self.hiddenBase + (self.dragonKing * 3)
 	def getBaseInvested(self):
-			return self.base+self.baseMod + self.invested
+			return self.base+self.baseMod+self.hiddenBase + self.invested
 	def getToolTip(self):
-			return f"{self.base+self.baseMod} + {self.invested}"
+			return f"{self.base+self.baseMod} + {self.invested+self.hiddenBase}"
 	def getScaled(self):
 		totalStat = self.getTotal()
 		totalSoftCap = self.getTotalSoftCap()

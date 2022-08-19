@@ -20,6 +20,7 @@ class Vital:
 		self.percentFocus = 100
 		self.hpShards = 0
 		self.focusShards = 0
+		self.afflictedSpectre = 0
 		self.makeDisplay(handler=parent)
 	def getMaxHealth(self):
 		return int(self.getCurrentHealth() * ( self.percentHealth / 100 ))
@@ -29,6 +30,7 @@ class Vital:
 		health = self.getBaseHealth()
 		health = health + int(health * 0.1) if self.giantMod else health
 		health = health + int(health * 0.1) if self.hexerMod else health
+		health = health + int(health * (0.05 * self.afflictedSpectre)) if self.afflictedSpectre>0 else health
 		return int(health)
 	def getGiantMod(self):
 		if self.giantMod:
@@ -42,6 +44,15 @@ class Vital:
 		self.health+=num
 	def addFocus(self, num):
 		self.focus+=num
+	def painTolerance(self, prevnum, nextnum):
+		self.hiddenMods-=prevnum
+		self.hiddenMods+=nextnum
+		self.updateDisplay()
+	def updateCapacity(self, num):
+		self.hiddenFMods-=self.capacityFormerValue
+		self.hiddenFMods+=num
+		self.capacityFormerValue = num
+		self.updateDisplay()
 	def updateValues(self, stats):
 		self.health = 12 + (round(stats.strength.invested) * 3) + (240 - statHandler.points) + (round(stats.vitality.getScaled()) * 10) + (round(stats.sanctity.getScaled()) * 2)
 		self.focus = 10 + (round(stats.will.getScaled()) * 5) + (round(stats.faith.getScaled()) * 3) + (round(stats.sanctity.getScaled()) * 2)
@@ -137,6 +148,13 @@ class Vital:
 		shardLabel2.grid(row=1,column=9)
 		self.hpShardMod.grid(row=0, column=10)
 		self.focusShardMod.grid(row=1, column=10)
+  
+		Label(displayFrame,text="Capacity: " ).grid(row=1,column=11,sticky=W)
+		self.capacityValue = IntVar(value=0)
+		self.capacityFormerValue = 0 
+		self.capacity = Spinbox(displayFrame, from_=0, to=25, increment=5,format='%10.0f',width=6, command=lambda:self.updateCapacity(self.capacityValue.get()),textvariable=self.capacityValue, wrap=False)
+		self.capacity.grid(row=1,column=12,sticky=W)
+  
 		# break off into different function and split it up, can really really refactor / optimize all of this
 		Label(displayFrame,text="Giant Gene").grid(row=0,column=5, sticky=EW)
 		Label(displayFrame,text="Fortitude").grid(row=1,column=5, sticky=EW)

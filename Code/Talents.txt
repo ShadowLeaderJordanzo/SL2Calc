@@ -1,0 +1,72 @@
+Warrior (STR++, SKI+)
+Strength = 2;
+Skill = 1;
+break;
+Hero (STR++, LUC+)
+Strength = 2;
+Luck = 1;
+break;
+Magician (WIL++, CEL+)
+Will = 2;
+Celerity = 1;
+break;
+Spellblade (WIL++, STR+)
+Will = 2;
+Strength = 1;
+break;
+Assassin (SKI++, LUC+)
+Skill = 2;
+Luck = 1;
+break;
+Myrmidon (SKI++, CEL+)
+Skill = 2;
+Celerity = 1;
+break;
+Fencer (CEL++, DEF+)
+Celerity = 2;
+Defense = 1;
+break;
+Thief (CEL++, LUC+)
+Celerity = 2;
+Luck = 1;
+break;
+Ward (DEF++, RES+)
+Defense = 2;
+Resistance = 1;
+break;
+Shaman (DEF++, WIL+)
+Defense = 2;
+Will = 1;
+break;
+Ghost (RES++, CEL+)
+Resistance = 2;
+Celerity = 1;
+break;
+Witchhunter(RES++, STR +)
+Resistance = 2;
+Strength = 1;
+break;
+Marauder (VIT++, LUC+)
+Vitality = 2;
+Luck = 1;
+break;
+Knight (VIT++, DEF+)
+Vitality = 2;
+Defense = 1;
+break;
+Faithful (FAI++, RES+)
+Faith = 2;
+Resistance = 1;
+break;
+Priest (FAI++, WIL+)
+Faith = 2;
+Will = 1;
+break;
+Survivor(LUC++, VIT +)
+Luck = 2;
+Vitality = 1;
+break;
+Gambler (LUC++, STR+)
+Luck = 2;
+Strength = 1;
+break;
