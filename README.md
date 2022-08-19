@@ -2,7 +2,7 @@
 remake of https://neus-projects.net/forums/showthread.php?tid=6498
 
 # Preview
-![preview](https://cdn.discordapp.com/attachments/866174124762071060/1001400716184801310/unknown.png?size=4096)
+![preview](https://cdn.discordapp.com/attachments/865819034838237187/1008026167124705360/unknown.png?size=4096)
 
 # TO DO 
 make classes for resistance
