@@ -67,7 +67,6 @@ class ModHandler:
 		"LunaCu":"sanctity",
 		"AkurZo":"guile",
 		"All":"none"
-		
 	}
 	def __init__(self,root, char):
 		self.person = char

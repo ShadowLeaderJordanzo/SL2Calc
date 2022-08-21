@@ -90,7 +90,7 @@ class Person:
 		self.defHandler = DefHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # Phys% Mag Def % Evade crit evade Status Resist
 		self.othersHandler = OtherHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # youkai cap, skill pool, init, bw / encumbrance
 		self.modHandler = ModHandler(root=self.leFrame,char=self) # stamps/LE, additonal things like check boxes etc
-		self.astroHandler = AstroHandler(root=root)
+		self.astroHandler = AstroHandler(root=root,parent=self)
 	def updateAll(self):
 		self.vitals.updateDisplay()
 		self.eleHandler.updateAll()
