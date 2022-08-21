@@ -20,25 +20,28 @@ class LegendExtend():
 		self.button.grid(row=row,column=column,sticky=W)
 	def updateDisplay(self, active):
 		stats = self.parent.person.statHandler
+		self.changeValue(active)
+		if self.leName == "All":
+			self.parent.tickAll(toggle=active)
 		if active:
-			self.currentValue.set(0)
-			self.button.configure(image=self.offImage)
-			if self.leName == "All":
-				self.parent.tickAll(toggle=active)
-			else:
-				stat = getattr(stats, self.statToChange)
-				setattr(stat, "hiddenBase", (getattr(stat, "hiddenBase") - 1))
+			self.changeMod(num=-1)
 		else:
-			self.currentValue.set(1)
-			self.button.configure(image=self.onImage)
-			if self.leName == "All":
-				self.parent.tickAll(toggle=active)
-			else:
-				stat = getattr(stats, self.statToChange)
-				setattr(stat, "hiddenBase", (getattr(stat, "hiddenBase") + 1))
+			self.changeMod(num=1)
 		stats.updateAll()
 		self.parent.person.updateAll()
 		self.previousValue = active
+	def changeValue(self, active):
+		if active:
+			self.currentValue.set(0)
+			self.button.configure(image=self.offImage)
+		else:
+			self.currentValue.set(1)
+			self.button.configure(image=self.onImage)
+	def changeMod(self, num):
+		if self.leName!="All":
+			stats = self.parent.person.statHandler
+			stat = getattr(stats, self.statToChange)
+			setattr(stat, "hiddenBase", (getattr(stat, "hiddenBase") + num))
 class ModHandler:
 	list1 = ["AxysAl",
 		"BldiIa",
@@ -93,9 +96,13 @@ class ModHandler:
 				currentRow += 1
 			setattr(self, name, LegendExtend(root=root, name=name, relatedstat=ModHandler.list2[name],row = currentRow,column=currentCol,modHandler=self))
 	def tickAll(self, toggle):
+		number = -1 if toggle else 1
 		for num, name in enumerate(ModHandler.list1):
 			if name == "All": continue
-			getattr(self, name).updateDisplay(active=toggle)
+			getattr(self, name).changeValue(active=toggle)
+			getattr(self, name).changeMod(num=number)
+		self.person.statHandler.updateAll()
+		self.person.updateAll()
 
 
 	

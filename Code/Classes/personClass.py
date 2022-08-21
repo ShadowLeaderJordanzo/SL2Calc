@@ -9,20 +9,10 @@ from Classes.atkHandler import AtkHandler
 from Classes.defHandler import DefHandler
 from Classes.otherHandler import OtherHandler
 from Classes.LegendExtendButtons import ModHandler
+from Classes.astro import *
 from databaseInfo import *
 from Classes.statClasses import *
-
-def astroPopUp():
-	astro = Toplevel()
-	astro.configure(bg='black')
-	astro.resizable=(0,0)
-	astro.wm_maxsize(width=307,height=313)
-	astro.wm_minsize(width=307,height=313)
-	starSign = PhotoImage(file = fileName('Images\\Starsign.png'))
-	astroCanvas = Canvas(astro, width=307,height=313)
-	astroCanvas.pack(fill="both",expand= TRUE)
-	astroCanvas.create_image(0,0,image=starSign, anchor="nw")
-	astro.mainloop()			
+		
 class ClassBonuses:
 	def __init__(self, name, dataBase): # probably sql to handle database of info 
 		dataBase.cur.execute('SELECT * FROM classbonus WHERE name=?', (name,))
@@ -40,37 +30,12 @@ class ClassBonuses:
 		self.sanctity = data[11]
 
 class Person:
+	currentVersion = "0.1d"
 	# so if its class variable its essentially shared across all classes, but more like it exists as its own instance shared?? 
 	def __init__(self, root, pixel,dataBase):
-		self.superFrame = ttk.Frame(root)
-		self.superFrame.grid(row=6,column=0,sticky=W)
-		self.infoFrame = ttk.Frame(root)
-		self.infoFrame.grid(row=6,column=2,sticky=W)
 		self.Data = dataBase
-		self.statHandler = statHandler( stats = [stat(base=0,name="strength"),stat(base=0,name="will"),stat(base=0,name="skill"),
-			stat(base=0,name="celerity"),stat(base=0,name="defense"),stat(base=0,name="resistance"),stat(base=0,name="vitality"),
-			stat(base=0,name="faith"),stat(base=0,name="luck"),stat(base=0,name="guile"),stat(base=0,name="sanctity"),stat(base=0,name="aptitude")],
-			parent=self.superFrame, pixel=pixel, person=self,root=root) # stats
-		self.vitals = Vital(parent=root,person=self)
-		self.eleHandler = EleHandler(parent=self.superFrame,pixel=pixel,person=self,root=root) # ELE ATKS / ELE DEF
-		self.atkHandler = AtkHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # hit/crit/status infliction/flanking 
-		self.defHandler = DefHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # Phys% Mag Def % Evade crit evade Status Resist
-		self.othersHandler = OtherHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # youkai cap, skill pool, init, bw / encumbrance
-		self.superOptions = ttk.Frame(root)
-		self.superOptions.grid(row=6,column=3,columnspan=3,rowspan=10)
-  
-		self.leFrame = ttk.Frame(self.superOptions)
-		self.leFrame.grid(row=0,column=0,sticky=W)
-		self.optionsFrame = ttk.Frame(self.superOptions)
-		self.optionsFrame.grid(row=1,column=0,sticky=W)
-		self.modHandler = ModHandler(root=self.leFrame,char=self) # stamps/LE, additonal things like check boxes etc
-		# self.thing = LegendExtend(root=root, relatedstat="celerity",row=5,column=15,name="RabeUr")
-		textFrame = ttk.Frame(root)
-		textFrame.grid(row=5,column=2,sticky=W)
-		Label(textFrame, text=" ",width=8).grid(row=0,column=0)
-		Label(textFrame, text=" ",width=4).grid(row=0,column=1)
-		Label(textFrame, text="Mods",width=8).grid(row=0,column=2)
-		Label(textFrame, text="Torso").grid(row=0,column=3)
+		self.makeFrames(root=root)
+		self.makeHandlers(pixel=pixel, root=root)
 		self.trait = "None"
 		self.race = "None"
 		self.mainClass = "None"
@@ -81,8 +46,51 @@ class Person:
 			self.superOptions.columnconfigure(columns,weight=1)
 		for columns in range(self.superFrame.grid_size()[0]):
 			self.superFrame.columnconfigure(columns,weight=1)
-		for columns in range(textFrame.grid_size()[0]):
-			textFrame.columnconfigure(columns,weight=1)
+		for columns in range(self.textFrame.grid_size()[0]):
+			self.textFrame.columnconfigure(columns,weight=1)
+		self.makeAstroButton()
+	def makeFrames(self, root):
+		self.superFrame = ttk.Frame(root)
+		self.superFrame.grid(row=6,column=0,sticky=W)
+		self.infoFrame = ttk.Frame(root)
+		self.infoFrame.grid(row=6,column=2,sticky=W)
+		self.superOptions = ttk.Frame(root)
+		self.superOptions.grid(row=6,column=3,columnspan=3,rowspan=10)
+		self.leFrame = ttk.Frame(self.superOptions)
+		self.leFrame.grid(row=0,column=0,sticky=W)
+		self.optionsFrame = ttk.Frame(self.superOptions)
+		self.optionsFrame.grid(row=1,column=0,sticky=W)
+		self.modsTorsoFrame(root=root)
+		self.versionFrame = ttk.Frame(root)
+		self.versionFrame.grid(row=0,column=15,sticky=NSEW,columnspan=3,rowspan=2)
+		version = Label(self.versionFrame, text="Version " + Person.currentVersion)
+		version.grid(row=0,column=0,sticky=NSEW)
+	def makeAstroButton(self):
+		print("huh")
+		test = "NoSign"
+		namesake = fileName(f"Images\\{test}.png")
+		self.neededimage = PhotoImage(file=namesake)
+		self.astroButton = Button(self.versionFrame,image=self.neededimage, command=self.astroHandler.astroPopUp)
+		self.astroButton.grid(row=0,column=1,rowspan=2,sticky=W)
+	def modsTorsoFrame(self, root):
+		self.textFrame = ttk.Frame(root)
+		self.textFrame.grid(row=5,column=2,sticky=W)
+		Label(self.textFrame, text=" ",width=8).grid(row=0,column=0)
+		Label(self.textFrame, text=" ",width=4).grid(row=0,column=1)
+		Label(self.textFrame, text="Mods",width=8).grid(row=0,column=2)
+		Label(self.textFrame, text="Torso").grid(row=0,column=3)
+	def makeHandlers(self, pixel, root):
+		self.statHandler = statHandler( stats = [stat(base=0,name="strength"),stat(base=0,name="will"),stat(base=0,name="skill"),
+			stat(base=0,name="celerity"),stat(base=0,name="defense"),stat(base=0,name="resistance"),stat(base=0,name="vitality"),
+			stat(base=0,name="faith"),stat(base=0,name="luck"),stat(base=0,name="guile"),stat(base=0,name="sanctity"),stat(base=0,name="aptitude")],
+			parent=self.superFrame, pixel=pixel, person=self,root=root) # stats
+		self.vitals = Vital(parent=root,person=self)
+		self.eleHandler = EleHandler(parent=self.superFrame,pixel=pixel,person=self,root=root) # ELE ATKS / ELE DEF
+		self.atkHandler = AtkHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # hit/crit/status infliction/flanking 
+		self.defHandler = DefHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # Phys% Mag Def % Evade crit evade Status Resist
+		self.othersHandler = OtherHandler(parent=self.infoFrame,pixel=pixel,person=self,root=root) # youkai cap, skill pool, init, bw / encumbrance
+		self.modHandler = ModHandler(root=self.leFrame,char=self) # stamps/LE, additonal things like check boxes etc
+		self.astroHandler = AstroHandler(root=root)
 	def updateAll(self):
 		self.vitals.updateDisplay()
 		self.eleHandler.updateAll()
